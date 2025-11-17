@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { Image, Text, View } from "react-native";
 
 export default function Index() {
   return (
@@ -7,6 +7,7 @@ export default function Index() {
         flex: 1,
       }}
     >
+     <Image source={require('./../assets/images/landing.png')}/> 
     </View>
   );
 }
