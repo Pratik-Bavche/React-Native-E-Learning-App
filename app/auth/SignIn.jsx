@@ -5,13 +5,13 @@ import { useRouter } from "expo-router";
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../../config/firebase.jsx';
 import { doc, getDoc } from 'firebase/firestore';
-import { userDetailContext } from '../../context/UserDetailContext.jsx';
+import { UserDetailContext } from '../../context/UserDetailContext.jsx';
 
 export default function SignIn() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { userDetail, setUserDetail } = useContext(userDetailContext);
+  const { userDetail, setUserDetail } = useContext(UserDetailContext);
   const [loading, setLoading] = useState(false);
 
   const onSignInClick = () => {

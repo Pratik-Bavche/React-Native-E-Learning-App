@@ -5,13 +5,13 @@ import { useRouter } from "expo-router";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { db ,auth} from './../../config/firebase.jsx';
 import { doc, setDoc } from 'firebase/firestore';
-import { userDetailContext } from '../../context/UserDetailContext.jsx';
+import { UserDetailContext } from '../../context/UserDetailContext.jsx';
 export default function SignUp() {
     const router=useRouter();
     const [fullName, setFullName] = React.useState('');
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
-    const {userDetail, setUserDetail}=useContext(userDetailContext);
+    const {userDetail, setUserDetail}=useContext(UserDetailContext);
 
   const CraeteNewAccount=()=>{
     //logic for creating new account
