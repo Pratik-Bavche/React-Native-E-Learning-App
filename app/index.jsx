@@ -1,6 +1,10 @@
-import { Button, Image, StyleSheet, Text, View } from "react-native";
-import Colors from "./../constant/Colors.jsx"
+import { Button, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Colors from "../constant/Colors.jsx"
+import { useRouter } from "expo-router";
 export default function Index() {
+
+const router=useRouter();
+
   return (
     <View
       style={{
@@ -41,13 +45,17 @@ export default function Index() {
           fontFamily:'outfit'
         }}>Your ideas, transformed into meaningful learning experiences.</Text>
 
-        <View style={styles.button}>
+        <TouchableOpacity style={styles.button}
+        onPress={()=>router.push('/auth/SignIn')}
+        >
           <Text style={[styles.buttonText,{color:Colors.PRIMARY}]}>Sign In</Text>
-        </View>
+        </TouchableOpacity>
 
-        <View style={[styles.button,{backgroundColor:Colors.PRIMARY,borderWidth:1,borderColor:Colors.WHITE}]}>
+        <TouchableOpacity style={[styles.button,{backgroundColor:Colors.PRIMARY,borderWidth:1,borderColor:Colors.WHITE}]}
+        onPress={()=>router.push('/auth/SignUp')}
+        >
           <Text style={[styles.buttonText,{color:Colors.WHITE}]}>Sign Up</Text>
-        </View>
+        </TouchableOpacity>
 
       </View>
     </View>
