@@ -1,10 +1,52 @@
 import { View, Text, Image, TextInput, StyleSheet, TouchableOpacity, Pressable } from 'react-native'
-import React from 'react'
+import React, { useContext } from 'react'
 import Colors from "./../../constant/Colors.jsx"
 import { useRouter } from "expo-router";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { db ,auth} from './../../config/firebase.jsx';
+import { doc, setDoc } from 'firebase/firestore';
+import { userDetailContext } from '../../context/UserDetailContext.jsx';
 export default function SignUp() {
     const router=useRouter();
-  return (
+    const [fullName, setFullName] = React.useState('');
+    const [email, setEmail] = React.useState('');
+    const [password, setPassword] = React.useState('');
+    const {userDetail, setUserDetail}=useContext(userDetailContext);
+
+  const CraeteNewAccount=()=>{
+    //logic for creating new account
+    createUserWithEmailAndPassword(auth,email,password)
+    .then(async(res)=>{
+      const user=res.user;
+      console.log("User created successfully:",user);
+      //Save user info to database
+      await SaveUser(user);
+    })
+    .catch((error)=>{
+      console.log("Error creating user:",error.message);
+    });
+  }
+
+  const SaveUser=async(user)=>{
+    //logic for saving user info to database
+    await setDoc(doc(db,"users",email),{
+      fullName:fullName,
+      email:email,
+      member:false,
+      createdAt:new Date(),
+      uid:user?.uid
+    })
+
+    setUserDetail({
+      fullName:fullName,
+      email:email,  
+      member:false,
+      uid:user?.uid
+    });
+
+  }
+
+  return (  
     <View 
     style={{flex:1,
       alignItems:'center',
@@ -23,11 +65,11 @@ export default function SignUp() {
         <Text 
         style={{fontSize:30,fontFamily:'outfit-bold',marginTop:30}}>Create New Account</Text>
 
-        <TextInput style={styles.textInput} placeholder='Enter Full Name'/>
-        <TextInput style={styles.textInput} placeholder='Enter Email'/>
-        <TextInput style={styles.textInput} secureTextEntry={true} placeholder='Enter Password'/>
+        <TextInput style={styles.textInput} onChangeText={(val)=>setFullName(val)} placeholder='Enter Full Name'/>
+        <TextInput style={styles.textInput} onChangeText={(val)=>setEmail(val)} placeholder='Enter Email'/>
+        <TextInput style={styles.textInput} onChangeText={(val)=>setPassword(val)} secureTextEntry={true} placeholder='Enter Password'/>
 
-        <TouchableOpacity style={{
+        <TouchableOpacity onPress={CraeteNewAccount} style={{
           padding:15,
           backgroundColor:Colors.PRIMARY,
           width:'100%',
