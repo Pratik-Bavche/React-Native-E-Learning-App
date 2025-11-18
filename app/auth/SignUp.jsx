@@ -27,24 +27,25 @@ export default function SignUp() {
     });
   }
 
-  const SaveUser=async(user)=>{
-    //logic for saving user info to database
-    await setDoc(doc(db,"users",email),{
-      fullName:fullName,
-      email:email,
-      member:false,
-      createdAt:new Date(),
-      uid:user?.uid
-    })
+ const SaveUser = async (user) => {
+  await setDoc(doc(db, "users", user.uid), {
+    fullName: fullName,
+    email: email,
+    member: false,
+    createdAt: new Date(),
+    uid: user.uid
+  });
 
-    setUserDetail({
-      fullName:fullName,
-      email:email,  
-      member:false,
-      uid:user?.uid
-    });
+  setUserDetail({
+    fullName,
+    email,
+    member: false,
+    uid: user.uid
+  });
 
-  }
+  router.replace('/');
+};
+
 
   return (  
     <View 

@@ -1,7 +1,6 @@
 import { initializeApp } from "firebase/app";
-import { getAnalytics, isSupported } from "firebase/analytics"; 
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
-import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage"; 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -17,22 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 export const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(ReactNativeAsyncStorage)
+  persistence: getReactNativePersistence(AsyncStorage)
 });
 
 export const db = getFirestore(app);
-
-isSupported()
-  .then(supported => {
-    if (supported) {
-      getAnalytics(app); 
-      console.log("Firebase Analytics initialized successfully.");
-    } else {
-      console.log("Firebase Analytics skipped: Unsupported environment (likely React Native).");
-    }
-  })
-  .catch(error => {
-    console.error("Error checking Firebase Analytics support:", error);
-  });
-
-export { app };
