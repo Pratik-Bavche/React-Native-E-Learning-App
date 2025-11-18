@@ -12,7 +12,7 @@ export default function Index() {
      <Image source={require('./../assets/images/landing.png')}
       style={{
         width:'100%', 
-        height:450,
+        height:480,
         marginTop:70,
         resizeMode:'contain',
       }}/> 
@@ -27,9 +27,9 @@ export default function Index() {
 
         <Text style={{
           fontSize:30,
-          fontWeight:"bold",
           textAlign:"center",
-          color:Colors.WHITE
+          color:Colors.WHITE,
+          fontFamily:'outfit-bold'
         }}>Welcome to Future Classes</Text>
 
 
@@ -37,7 +37,8 @@ export default function Index() {
           fontSize:20,
           color:Colors.WHITE,
           marginTop:20,
-          textAlign:"center"
+          textAlign:"center",
+          fontFamily:'outfit'
         }}>Your ideas, transformed into meaningful learning experiences.</Text>
 
         <View style={styles.button}>
@@ -63,6 +64,7 @@ const styles = StyleSheet.create({
     },
     buttonText:{
       textAlign:'center',
-      fontSize:18
+      fontSize:18,
+      fontFamily:'outfit'
     }
 })
