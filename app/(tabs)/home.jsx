@@ -2,6 +2,7 @@ import { View, Text, Platform } from 'react-native'
 import React from 'react'
 import Header from '../../components/Home/Header'
 import Colors from '../../constant/Colors.jsx'
+import NoCourse from '../../components/Home/NoCourse.jsx'
 export default function Home() {
   return (
     <View style={{padding:25,paddingTop:Platform.OS=='ios'&&45,
@@ -9,6 +10,7 @@ export default function Home() {
       backgroundColor:Colors.WHITE
     }} >
       <Header/>
+      <NoCourse/>
     </View>
   )
 }
