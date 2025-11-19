@@ -7,11 +7,14 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 export default function TabLayout() {
   return (
-    <Tabs screenOptions={{headerShown:false}}>
-        <Tabs.Screen name="home" options={{tabBarLabel:'Home', tabBarIcon:({color,size})=><AntDesign name="home" size={24} color="black" />}}/> 
-        <Tabs.Screen name="explore" options={{tabBarLabel:'Explore',tabBarIcon:({color,size})=><FontAwesome6 name="wpexplorer" size={24} color="black" />}}/>
-        <Tabs.Screen name="progress" options={{tabBarLabel:'Progress',tabBarIcon:({color,size})=><MaterialCommunityIcons name="progress-clock" size={24} color="black" />}}/>
-        <Tabs.Screen name="profile" options={{tabBarLabel:'Profile',tabBarIcon:({color,size})=><FontAwesome5 name="user-circle" size={24} color="black" />}}/>
+    <Tabs screenOptions={{
+        headerShown:false, 
+        tabBarActiveTintColor: "black",
+        tabBarInactiveTintColor: "gray"}}>
+        <Tabs.Screen name="home" options={{tabBarLabel:'Home', tabBarIcon:({color,size})=><AntDesign name="home" size={24} color="#e18649ff" />}}/> 
+        <Tabs.Screen name="explore" options={{tabBarLabel:'Explore',tabBarIcon:({color,size})=><FontAwesome6 name="wpexplorer" size={24} color="#e18649ff" />}}/>
+        <Tabs.Screen name="progress" options={{tabBarLabel:'Progress',tabBarIcon:({color,size})=><MaterialCommunityIcons name="progress-clock" size={24} color="#e18649ff"/>}}/>
+        <Tabs.Screen name="profile" options={{tabBarLabel:'Profile',tabBarIcon:({color,size})=><FontAwesome5 name="user-circle" size={24} color="#e18649ff" />}}/>
     </Tabs>
   )
 }
