@@ -2,8 +2,9 @@ import { View, Text, Image } from 'react-native';
 import React from 'react';
 import Colors from '../../constant/Colors.jsx';
 import Button from '../Shared/Button.jsx';
-
+import { useRouter } from 'expo-router';
 export default function NoCourse() {
+  const router=useRouter();
   return (
     <View style={{ padding: 20, marginTop: 40 }}>
       <Image 
@@ -22,7 +23,7 @@ export default function NoCourse() {
         You have not enrolled in any course yet
       </Text>
 
-      <Button text={"Create New Course"}/>
+      <Button text={"Create New Course"} onPress={()=>router.push('addCourse')}/>
       <Button text={"Explore Existing Courses"} type='outline'/>
     </View>
   );
