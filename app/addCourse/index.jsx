@@ -104,12 +104,16 @@ export default function AddCourse() {
       console.log("COURSE CREATED:", courses);
 
       // Save to Firestore (fixed)
-      await addDoc(collection(db, "courses"), {
-        topics: selectedTopic,
-        courseData: courses,
-        createdBy: userDetail.email, // user email
-        createdAt: new Date(),
-      });
+     await addDoc(collection(db, "courses"), {
+      courseTitle: courses.courseTitle,
+      description: courses.description,
+      banner_image: courses.banner_image,
+      category: courses.category,
+      chapters: courses.chapters,
+      topics: selectedTopic,
+      createdBy: userDetail.email,
+      createdAt: new Date(),
+    });
 
       alert("Course saved successfully!");
       router.back(); // go back
