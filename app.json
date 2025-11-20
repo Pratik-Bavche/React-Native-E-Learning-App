@@ -8,6 +8,11 @@
     "scheme": "elearningapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+
+    "extra": {
+      "EXPO_PUBLIC_GEMINI_API_KEY": "AIzaSyAMe7p4PHwGtO5eWFJWRA-oaxtTz0hzPCQ"
+    },
+
     "ios": {
       "supportsTablet": true
     },
