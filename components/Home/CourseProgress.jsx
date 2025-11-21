@@ -4,10 +4,6 @@ import { imageAssets } from '../../constant/Option'
 import * as Progress from 'react-native-progress';
 export default function CourseProgress({courseList}) {
   return (
-    <FlatList 
-    data={[]}
-    ListHeaderComponent={
-
     <View style={{marginTop:10}}>
       <Text style={{fontFamily:'outfit-bold',fontSize:25}}>Progress</Text>
       <FlatList data={courseList}
@@ -53,7 +49,7 @@ export default function CourseProgress({courseList}) {
       />
     </View>
     
-    }/>
+
     
   )
 }

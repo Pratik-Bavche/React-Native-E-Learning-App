@@ -1,4 +1,4 @@
-import { View, Text, Platform } from 'react-native'
+import { View, Text, Platform, FlatList } from 'react-native'
 import React, { useEffect } from 'react'
 import Header from '../../components/Home/Header'
 import Colors from '../../constant/Colors.jsx'
@@ -36,6 +36,9 @@ export default function Home() {
   }
 
   return (
+       <FlatList
+        data={[]}
+        ListHeaderComponent={
     <View style={{
       padding: 25,
       paddingTop: Platform.OS === 'ios' ? 45 : 25,
@@ -53,6 +56,6 @@ export default function Home() {
         <CourseList courseList={courseList} />
         </View>
       )}
-    </View>
+    </View>}/>
   )
 }
