@@ -5,7 +5,10 @@ export default class PracticeSection extends Component {
   render() {
     return (
       <View>
-        <Text>PracticeSection</Text>
+        <Text style={{
+          fontFamily:'outfit-bold',
+          fontSize:25
+        }}>Practice</Text>
       </View>
     )
   }

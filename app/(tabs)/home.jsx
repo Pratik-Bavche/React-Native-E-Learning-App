@@ -7,35 +7,50 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from '../../config/firebase.jsx'
 import { UserDetailContext } from '../../context/UserDetailContext.jsx'
 import CourseList from '../../components/Home/CourseList.jsx'
+import PracticeSection from '../../components/Home/PracticeSection.jsx' // <-- Correct
 
 export default function Home() {
 
   const [courseList, setCourseList] = React.useState([])
-  const { userDetail, setUserDetail } = React.useContext(UserDetailContext)
+  const { userDetail } = React.useContext(UserDetailContext)
 
   useEffect(() => {
-    userDetail && getCourseList()
+    if (userDetail) getCourseList()
   }, [userDetail])
 
   const getCourseList = async () => {
-    const q = query(collection(db, "courses"), where("createdBy", "==", userDetail?.email))
+    const q = query(
+      collection(db, "courses"),
+      where("createdBy", "==", userDetail?.email)
+    )
+
     const querySnapshot = await getDocs(q);
 
+    let list = []
     querySnapshot.forEach((doc) => {
-      console.log("----", doc.data())
-      setCourseList(prev => [...prev, doc.data()])
+      list.push(doc.data())
     })
+
+    setCourseList(list)
   }
 
   return (
     <View style={{
       padding: 25,
-      paddingTop: Platform.OS == 'ios' && 45,
+      paddingTop: Platform.OS === 'ios' ? 45 : 25,
       flex: 1,
       backgroundColor: Colors.WHITE
     }}>
       <Header />
-      {courseList?.length===0 ? <NoCourse /> :<CourseList courseList={courseList} />}
+
+      {/* Your existing practice section */}
+      <PracticeSection />
+
+      {courseList.length === 0 ? (
+        <NoCourse />
+      ) : (
+        <CourseList courseList={courseList} />
+      )}
     </View>
   )
 }

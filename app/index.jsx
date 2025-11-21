@@ -1,6 +1,6 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Colors from "../constant/Colors.jsx";
-import { useRouter } from "expo-router";
+import { useRouter, useRootNavigationState } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../config/firebase.jsx";
 import { useEffect, useContext } from "react";
@@ -9,27 +9,28 @@ import { doc, getDoc } from "firebase/firestore";
 
 export default function Index() {
   const router = useRouter();
+  const navigationState = useRootNavigationState();
   const { userDetail, setUserDetail } = useContext(UserDetailContext);
 
   useEffect(() => {
-    // Listen for login state ONLY once
+    // Wait for router to be ready
+    if (!navigationState?.key) return;
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        console.log("User logged in:", user);
-
-        // Fetch user details from Firestore (using uid instead of email)
+        // Fetch user data
         const result = await getDoc(doc(db, "users", user.uid));
-
         if (result.exists()) {
           setUserDetail(result.data());
         }
 
+        // Navigate safely
         router.replace("/(tabs)/home");
       }
     });
 
-    return () => unsubscribe(); // cleanup
-  }, []);
+    return unsubscribe;
+  }, [navigationState]);
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.WHITE }}>
@@ -91,7 +92,9 @@ export default function Index() {
           ]}
           onPress={() => router.push("/auth/SignUp")}
         >
-          <Text style={[styles.buttonText, { color: Colors.WHITE }]}>Sign Up</Text>
+          <Text style={[styles.buttonText, { color: Colors.WHITE }]}>
+            Sign Up
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
