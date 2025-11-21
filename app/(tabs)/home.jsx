@@ -8,6 +8,7 @@ import { db } from '../../config/firebase.jsx'
 import { UserDetailContext } from '../../context/UserDetailContext.jsx'
 import CourseList from '../../components/Home/CourseList.jsx'
 import PracticeSection from '../../components/Home/PracticeSection.jsx' // <-- Correct
+import CourseProgress from '../../components/Home/CourseProgress.jsx'
 
 export default function Home() {
 
@@ -42,14 +43,15 @@ export default function Home() {
       backgroundColor: Colors.WHITE
     }}>
       <Header />
-
-      {/* Your existing practice section */}
-      <PracticeSection />
-
+      
       {courseList.length === 0 ? (
         <NoCourse />
       ) : (
+        <View>
+        <CourseProgress courseList={courseList }/>
+        <PracticeSection />
         <CourseList courseList={courseList} />
+        </View>
       )}
     </View>
   )
