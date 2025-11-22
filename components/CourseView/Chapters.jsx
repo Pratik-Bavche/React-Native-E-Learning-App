@@ -1,9 +1,16 @@
-import { View, Text, FlatList } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity } from 'react-native'
 import React from 'react'
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Colors from '../../constant/Colors';
-
+import {useRouter} from 'expo-router'
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 export default function Chapters({ course }) {
+  const router=useRouter();
+  const isChapterCompleted=(index)=>{
+    const isCompleted=course?.completedChapter.find(item=>item==index)
+    return isCompleted?true:false;
+  }
+
   return (
     <View style={{ padding: 20 }}>
 
@@ -16,13 +23,22 @@ export default function Chapters({ course }) {
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item, index }) => (
 
-          <View
+          <TouchableOpacity onPress={()=>{
+            router.push({
+              pathname:'/chapterView',
+              params:{
+                chapterParams:JSON.stringify(item),
+                docId:course?.docId,
+                chapterIndex:index
+              }
+            })
+          }}
             style={{
               paddingVertical: 12,
               paddingHorizontal: 15,
               flexDirection: "row",
               alignItems: "center",
-              justifyContent: "space-between",  // ✅ pushes play button to right
+              justifyContent: "space-between",  
               backgroundColor: "#f3f3f3",
               borderRadius: 10,
               marginBottom: 10
@@ -41,9 +57,9 @@ export default function Chapters({ course }) {
             </View>
 
             {/* Right side: Play button */}
-           <AntDesign name="play-circle" size={24} color={Colors.PRIMARY} />
+          {isChapterCompleted(index) ? <FontAwesome name="check-circle" size={24} color={Colors.PRIMARY} /> : <AntDesign name="play-circle" size={24} color={Colors.PRIMARY} />}
 
-          </View>
+          </TouchableOpacity>
 
         )}
       />

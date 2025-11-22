@@ -113,6 +113,7 @@ export default function AddCourse() {
       topics: selectedTopic,
       createdBy: userDetail.email,
       createdAt: new Date(),
+      docId:Date.now().toString()
     });
 
       alert("Course saved successfully!");
