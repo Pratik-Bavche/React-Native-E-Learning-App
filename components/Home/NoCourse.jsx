@@ -6,7 +6,7 @@ import { useRouter } from 'expo-router';
 export default function NoCourse() {
   const router=useRouter();
   return (
-    <View style={{ padding: 20, marginTop: 40 }}>
+    <View style={{ padding: 20, marginTop: 40,height:712}}>
       <Image 
         source={require('../../assets/images/noCourse.png')} 
         style={{ width: 300, height: 300, alignSelf: 'center', marginTop: 30, resizeMode: 'contain' }}
