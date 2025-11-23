@@ -3,6 +3,16 @@ import React from 'react'
 import { imageAssets } from '../../constant/Option'
 import * as Progress from 'react-native-progress';
 export default function CourseProgress({courseList}) {
+
+  const GetCompltedChapters=(course)=>{
+    const completedChapter=course?.completedChapter?.length;
+    const per=completedChapter/course?.chapters?.length;
+    return per;
+  }
+
+
+
+
   return (
     <View style={{marginTop:10}}>
       <Text style={{fontFamily:'outfit-bold',fontSize:25}}>Progress</Text>
@@ -36,12 +46,12 @@ export default function CourseProgress({courseList}) {
                 </View>
 
                             <View style={{marginTop:10,alignItems:'center'}}>
-                                <Progress.Bar progress={0.6} width={230} />
+                                <Progress.Bar progress={GetCompltedChapters(item)} width={230} />
                                 <Text style={{
                                     fontFamily:'outfit',
                                     fontSize:14,
                                     marginTop:5,    
-                                }}>3 out of 5 chapters completed</Text>
+                                }}>{item?.completedChapter?.length} out of {item.chapters?.length} chapters completed</Text>
                             </View>
 
             </View>

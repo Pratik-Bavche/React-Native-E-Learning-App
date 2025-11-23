@@ -1,5 +1,5 @@
 import { View, Text, Platform, FlatList } from 'react-native'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from '../../components/Home/Header'
 import Colors from '../../constant/Colors.jsx'
 import NoCourse from '../../components/Home/NoCourse.jsx'
@@ -14,12 +14,13 @@ export default function Home() {
 
   const [courseList, setCourseList] = React.useState([])
   const { userDetail } = React.useContext(UserDetailContext)
-
+  const [loading,setLoading]=useState(false)
   useEffect(() => {
     if (userDetail) getCourseList()
   }, [userDetail])
 
   const getCourseList = async () => {
+    setLoading(true)
     const q = query(
       collection(db, "courses"),
       where("createdBy", "==", userDetail?.email)
@@ -33,11 +34,14 @@ export default function Home() {
     })
 
     setCourseList(list)
+    setLoading(false)
   }
 
   return (
        <FlatList
         data={[]}
+        onRefresh={()=>getCourseList()}
+        refreshing={loading}
         ListHeaderComponent={
     <View style={{
       padding: 25,
