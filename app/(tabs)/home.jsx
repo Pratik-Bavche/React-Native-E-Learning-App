@@ -1,4 +1,4 @@
-import { View, Text, Platform, FlatList } from 'react-native'
+import { View, Text, Platform, FlatList, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Header from '../../components/Home/Header'
 import Colors from '../../constant/Colors.jsx'
@@ -43,11 +43,13 @@ export default function Home() {
         onRefresh={()=>getCourseList()}
         refreshing={loading}
         ListHeaderComponent={
+          <View style={{ flex: 1,
+      backgroundColor: Colors.WHITE}}>
+            <Image source={require('./../../assets/images/wave.png')} style={{position:'absolute',height:500}}/>
     <View style={{
       padding: 25,
       paddingTop: Platform.OS === 'ios' ? 45 : 25,
-      flex: 1,
-      backgroundColor: Colors.WHITE
+      
     }}>
       <Header />
       
@@ -60,6 +62,9 @@ export default function Home() {
         <CourseList courseList={courseList} />
         </View>
       )}
-    </View>}/>
+    </View>
+    </View>
+    
+    }/>
   )
 }

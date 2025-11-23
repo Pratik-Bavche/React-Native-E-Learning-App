@@ -22,7 +22,7 @@ export default function CourseProgress({courseList}) {
             <View style={{
                 padding:15,
                 margin:5,
-                backgroundColor:'#F5F5F5',
+                backgroundColor:'white',
                 borderRadius:15,
                 width:250,
                 }}>

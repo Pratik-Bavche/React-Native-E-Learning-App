@@ -13,7 +13,8 @@ export default function Header() {
         <Text style={{
         fontFamily:'outfit-bold',
         fontSize:25,
-        marginTop:30
+        marginTop:30,
+        color:'white'
       }}>Welcome {userDetail?.fullName}</Text>
       <Text style={{fontFamily:'outfit',fontSize:18}}>Let's Get Started!</Text>
       </View>
