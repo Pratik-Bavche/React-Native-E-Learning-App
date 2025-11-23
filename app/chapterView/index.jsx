@@ -17,7 +17,7 @@ export default function ChapterView() {
   try {
     chapters = JSON.parse(chapterParams);
   } catch (e) {
-    console.warn("Invalid chapterParams", chapterParams);
+    console.warn("Invalid JSON for chapterParams:", chapterParams);
   }
 
   if (!chapters || !chapters.content) {
@@ -32,26 +32,27 @@ export default function ChapterView() {
   const GetProgress = () => (currentP + 1) / totalContent;
 
   const handleNext = async () => {
-    // If NOT last topic → go to next
+    // Go to next topic if not last
     if (currentP < totalContent - 1) {
       setCurrentP(currentP + 1);
       return;
     }
 
-    // LAST TOPIC → mark chapter completed
+    // LAST PAGE → update Firestore & redirect
     setLoader(true);
 
     try {
-      const docRef = doc(db, "courses", docId);
+    const docRef = doc(db, "courses", docId);
 
-      await updateDoc(docRef, {
-        completedChapter: arrayUnion(chapterIndex),
-      });
+    await updateDoc(docRef, {
+      completedChapter: arrayUnion(Number(chapterIndex)),
+    });
 
-      router.back()
-    } catch (error) {
-      console.log("Update error:", error);
-    }
+    router.replace(`/courseView/${docId}`);
+  } catch (err) {
+    console.log("Update error:", err);
+  }
+
 
     setLoader(false);
   };
@@ -90,13 +91,13 @@ export default function ChapterView() {
             styles.codeExampleText,
             { color: Colors.WHITE, backgroundColor: Colors.BLACK }
           ]}>
-            {chapters.content[currentP]?.code}
+            {chapters.content[currentP].code}
           </Text>
         )}
 
         {chapters.content[currentP]?.example && (
           <Text style={styles.codeExampleText}>
-            {chapters.content[currentP]?.example}
+            {chapters.content[currentP].example}
           </Text>
         )}
       </View>
