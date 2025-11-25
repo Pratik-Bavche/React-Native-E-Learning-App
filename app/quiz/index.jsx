@@ -5,7 +5,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import Colors from '../../constant/Colors';
 import * as Progress from 'react-native-progress';
 import Button from './../../components/Shared/Button';
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, setDoc } from "firebase/firestore";
 import { db } from "../../config/firebase";
 
 export default function Quiz() {
@@ -49,13 +49,37 @@ export default function Quiz() {
   const onQuizFinish = async () => {
     setLoading(true);
     try {
-      if (!course?.docId) throw new Error("Course document ID is missing.");
+      const docId = course?.docId || course?.id;
+      if (!docId) throw new Error("Course document ID is missing.");
 
-      await updateDoc(doc(db, "courses", course.docId), {
-        quizResult: result
-      });
+      // Ensure the latest selected option for the current page is included
+      const finalResult = { ...result };
+      if (selectedOption !== undefined) {
+        finalResult[currentPage] = {
+          userChoice: selectedOption,
+          isCorrect: quiz[currentPage]?.answer === selectedOption,
+          question: quiz[currentPage]?.question,
+          answer: quiz[currentPage]?.answer,
+        };
+      }
+
+      console.log("Saving quizResult to docId:", docId);
+      console.log("Final quiz payload:", finalResult);
+
+      // Use setDoc with merge: true to create the document if it does not exist
+      await setDoc(doc(db, "courses", docId), {
+        quizResult: finalResult
+      }, { merge: true });
 
       setQuizCompleted(true);
+      // Show completion modal briefly, then go back automatically
+      setTimeout(() => {
+        try {
+          router.back();
+        } catch (e) {
+          console.log('Navigation back failed:', e);
+        }
+      }, 1500);
     } catch (error) {
       console.log("Error saving quiz result:", error);
       alert("Failed to save quiz result. Try again.");
