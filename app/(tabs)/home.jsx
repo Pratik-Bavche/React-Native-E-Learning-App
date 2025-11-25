@@ -57,7 +57,6 @@ export default function Home() {
         <NoCourse />
       ) : (
         <View>
-          <NoCourse />
         <CourseProgress courseList={courseList }/>
         <PracticeSection />
         <CourseList courseList={courseList} />
