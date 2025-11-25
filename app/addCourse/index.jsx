@@ -69,63 +69,57 @@ export default function AddCourse() {
   };
 
   const onGenerateCourse = async () => {
+  try {
+    setLoading(true);
+
+    const topicsString = selectedTopic.join(", ");
+    const PROMPT = topicsString + "\n\n" + Prompt.COURSE;
+
+    const aiResp = await GenerateCourseAIModel.sendMessage(PROMPT);
+    let raw = aiResp.response.text().trim();
+
+    // Remove any accidental markdown wrappers
+    let cleaned = raw.replace(/```json/g, "").replace(/```/g, "").trim();
+
+    if (!cleaned || cleaned.length < 10) {
+      throw new Error("AI returned empty or incomplete JSON.");
+    }
+
+    let courseData;
     try {
-      setLoading(true);
-
-      const topicsString = selectedTopic.join(", ");
-      const PROMPT = topicsString + "\n\n" + Prompt.COURSE;
-
-      const aiResp = await GenerateCourseAIModel.sendMessage(PROMPT);
-      let raw = aiResp.response.text().trim();
-
-      console.log("RAW AI COURSE:", raw);
-
-      // Clean markdown wrappers
-      let cleaned = raw
-        .replace(/```json/g, "")
-        .replace(/```/g, "")
-        .trim();
-
-      console.log("CLEANED:", cleaned);
-
-      if (!cleaned || cleaned.length < 10) {
-        throw new Error("AI returned empty or incomplete JSON.");
-      }
-
-      let courses;
+      courseData = JSON.parse(cleaned);
+    } catch (parseErr) {
+      // Attempt minor fixes
+      cleaned = cleaned.replace(/,\s*}/g, "}").replace(/,\s*]/g, "]");
       try {
-        courses = JSON.parse(cleaned);
-      } catch (parseErr) {
-        console.log("PARSE FAILED. TRYING TO FIX JSON...");
-        cleaned = cleaned.replace(/,\s*}/g, "}").replace(/,\s*]/g, "]");
-        courses = JSON.parse(cleaned);
+        courseData = JSON.parse(cleaned);
+      } catch {
+        console.log("AI JSON parse error:", parseErr.message);
+        alert("AI returned invalid JSON. Try again.");
+        return;
       }
+    }
 
-      console.log("COURSE CREATED:", courses);
-
-      // Save to Firestore (fixed)
-     await addDoc(collection(db, "courses"), {
-      courseTitle: courses.courseTitle,
-      description: courses.description,
-      banner_image: courses.banner_image,
-      category: courses.category,
-      chapters: courses.chapters,
+    // Save to Firestore
+    await addDoc(collection(db, "courses"), {
+      ...courseData,
       topics: selectedTopic,
       createdBy: userDetail.email,
       createdAt: new Date(),
-      docId:Date.now().toString()
+      docId: Date.now().toString(),
     });
 
-      alert("Course saved successfully!");
-      router.back(); // go back
+    alert("Course saved successfully!");
+    router.back();
 
-    } catch (err) {
-      console.log("COURSE GENERATION ERROR:", err.message);
-      alert("Unable to generate course. The AI returned invalid JSON.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (err) {
+    console.log("COURSE GENERATION ERROR:", err.message);
+    alert("Unable to generate course. Check AI response.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <View style={{ padding: 25, backgroundColor: Colors.WHITE, flex: 1 }}>

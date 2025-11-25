@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import { imageAssets } from '../../constant/Option';
 import Entypo from '@expo/vector-icons/Entypo';
-import Ionicons from '@expo/vector-icons/Ionicons';   // ✅ FIXED: Missing import
+import Ionicons from '@expo/vector-icons/Ionicons';   
 
 import Button from "../../components/Shared/Button.jsx";
 
