@@ -1,10 +1,12 @@
-import { View, Text, Image, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Dimensions, ScrollView, Modal, ActivityIndicator } from 'react-native';
 import React, { useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Colors from '../../constant/Colors';
 import * as Progress from 'react-native-progress';
 import Button from './../../components/Shared/Button';
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../../config/firebase";
 
 export default function Quiz() {
   const { courseParams } = useLocalSearchParams();
@@ -13,45 +15,59 @@ export default function Quiz() {
 
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedOption, setSelectedOption] = useState(undefined);
-  const [result, setSelectedResult] = useState([]);
+  const [result, setSelectedResult] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [quizCompleted, setQuizCompleted] = useState(false);
 
   const quiz = course?.quiz || [];
   const totalQuestions = quiz.length;
 
-  const onNext = () => {
+  const progress = totalQuestions ? (currentPage + 1) / totalQuestions : 0;
+
+  const onOptionSelect = (choice) => {
+    setSelectedOption(choice);
+    setSelectedResult(prev => ({
+      ...prev,
+      [currentPage]: {
+        userChoice: choice,
+        isCorrect: quiz[currentPage]?.answer === choice,
+        question: quiz[currentPage]?.question,
+        answer: quiz[currentPage]?.answer,
+      }
+    }));
+  };
+
+  const onNext = async () => {
     if (currentPage < totalQuestions - 1) {
       setCurrentPage(currentPage + 1);
-      setSelectedOption(undefined); // reset selection
+      setSelectedOption(undefined); // Reset selection for next question
     } else {
-      alert('Quiz completed!');
-      router.back();
+      await onQuizFinish();
     }
   };
 
+  const onQuizFinish = async () => {
+    setLoading(true);
+    try {
+      if (!course?.docId) throw new Error("Course document ID is missing.");
 
-  const progress = totalQuestions ? (currentPage + 1) / totalQuestions : 0;
+      await updateDoc(doc(db, "courses", course.docId), {
+        quizResult: result
+      });
 
-
-    const onOptionSelect=(choice)=>{
-      setSelectedResult(prev=>({
-        ...prev,
-        [currentPage]:{
-          userChoice:choice,
-          isCorrect:quiz[currentPage]?.answer===choice,
-          question:quiz[currentPage]?.question,
-          answer:quiz[currentPage]?.answer
-        }
-      }))
-      console.log(result)
+      setQuizCompleted(true);
+    } catch (error) {
+      console.log("Error saving quiz result:", error);
+      alert("Failed to save quiz result. Try again.");
+    } finally {
+      setLoading(false);
     }
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.BG_GRAY }}>
       {/* Header Image */}
-      <Image 
-        source={require('./../../assets/images/wave.png')} 
-        style={{ width: "100%", height: 500 }}
-      />
+      <Image source={require('./../../assets/images/wave.png')} style={{ width: "100%", height: 500 }} />
 
       {/* Header Overlay */}
       <View
@@ -80,24 +96,14 @@ export default function Quiz() {
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
 
-        <Text style={{
-          fontFamily: "outfit-bold",
-          fontSize: 24,
-          color: Colors.WHITE
-        }}>
+        <Text style={{ fontFamily: "outfit-bold", fontSize: 24, color: Colors.WHITE }}>
           {currentPage + 1} of {totalQuestions}
         </Text>
       </View>
 
       {/* Progress Bar */}
-      <View style={{ marginTop:-400, alignItems:'center' }}>
-        <Progress.Bar 
-          progress={progress} 
-          width={Dimensions.get('window').width*0.85} 
-          color='white' 
-          height={10} 
-          borderRadius={5}
-        />
+      <View style={{ marginTop: -400, alignItems: 'center' }}>
+        <Progress.Bar progress={progress} width={Dimensions.get('window').width * 0.85} color='white' height={10} borderRadius={5} />
       </View>
 
       {/* Question Box */}
@@ -110,8 +116,8 @@ export default function Quiz() {
         width: 350,
         padding: 25,
         alignSelf: 'center',
-        justifyContent: 'center', 
-        alignItems: 'center',    
+        justifyContent: 'center',
+        alignItems: 'center',
       }}>
         <ScrollView contentContainerStyle={{ alignItems: 'center' }} showsVerticalScrollIndicator={false}>
           <Text style={{
@@ -127,17 +133,15 @@ export default function Quiz() {
           {quiz[currentPage]?.options.map((item, index) => (
             <TouchableOpacity
               key={index}
-              onPress={() => {
-                setSelectedOption(index); onOptionSelect(item)
-              } }
+              onPress={() => onOptionSelect(item)}
               style={{
-                backgroundColor: selectedOption === index ? Colors.PRIMARY : Colors.WHITE,
+                backgroundColor: selectedOption === item ? Colors.PRIMARY : Colors.WHITE,
                 paddingVertical: 15,
                 paddingHorizontal: 25,
                 marginVertical: 10,
                 borderRadius: 15,
                 borderWidth: 1,
-                borderColor: selectedOption === index ? Colors.PRIMARY : Colors.LIGHT_GRAY,
+                borderColor: selectedOption === item ? Colors.PRIMARY : Colors.LIGHT_GRAY,
                 width: 300,
                 alignItems: 'center',
                 elevation: 2,
@@ -146,7 +150,7 @@ export default function Quiz() {
               <Text style={{
                 fontFamily: 'outfit',
                 fontSize: 18,
-                color: selectedOption === index ? Colors.WHITE : Colors.BLACK,
+                color: selectedOption === item ? Colors.WHITE : Colors.BLACK,
                 textAlign: 'center'
               }}>
                 {item}
@@ -157,13 +161,48 @@ export default function Quiz() {
       </View>
 
       {/* Next / Finish Button */}
-      {selectedOption !== undefined && (
+      {selectedOption && (
         <Button
           text={currentPage < totalQuestions - 1 ? "Next" : "Finish"}
           style={{ width: 350, alignSelf: 'center', marginTop: 20, borderRadius: 15 }}
           onPress={onNext}
         />
       )}
+
+      {/* Loading Spinner */}
+      {loading && (
+        <View style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0, bottom: 0,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0,0,0,0.3)'
+        }}>
+          <ActivityIndicator size="large" color={Colors.PRIMARY} />
+        </View>
+      )}
+
+      {/* Quiz Completed Modal */}
+      <Modal visible={quizCompleted} transparent animationType="fade">
+        <View style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0,0,0,0.5)'
+        }}>
+          <View style={{
+            width: 300,
+            backgroundColor: Colors.WHITE,
+            padding: 25,
+            borderRadius: 20,
+            alignItems: 'center',
+          }}>
+            <Text style={{ fontSize: 22, fontFamily: 'outfit-bold', marginBottom: 15 }}>Quiz Completed!</Text>
+            <Text style={{ fontSize: 18, fontFamily: 'outfit', marginBottom: 25 }}>You have completed all the questions.</Text>
+            <Button text="Go Back" onPress={() => router.back()} />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
