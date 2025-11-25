@@ -4,7 +4,7 @@ import Colors from "../../constant/Colors";
 import Button from "../../components/Shared/Button";
 import { GenerateCourseAIModel, GenerateTopicsAIModel } from "../../config/AIModel";
 import Prompt from "../../constant/Prompt";
-import { addDoc, collection } from "firebase/firestore"; // <-- use collection
+import { doc, setDoc } from "firebase/firestore"; // <-- CHANGED: Import doc and setDoc
 import { db } from "../../config/firebase";
 import { UserDetailContext } from "../../context/UserDetailContext";
 import { useRouter } from "expo-router";
@@ -69,56 +69,62 @@ export default function AddCourse() {
   };
 
   const onGenerateCourse = async () => {
-  try {
-    setLoading(true);
-
-    const topicsString = selectedTopic.join(", ");
-    const PROMPT = topicsString + "\n\n" + Prompt.COURSE;
-
-    const aiResp = await GenerateCourseAIModel.sendMessage(PROMPT);
-    let raw = aiResp.response.text().trim();
-
-    // Remove any accidental markdown wrappers
-    let cleaned = raw.replace(/```json/g, "").replace(/```/g, "").trim();
-
-    if (!cleaned || cleaned.length < 10) {
-      throw new Error("AI returned empty or incomplete JSON.");
-    }
-
-    let courseData;
     try {
-      courseData = JSON.parse(cleaned);
-    } catch (parseErr) {
-      // Attempt minor fixes
-      cleaned = cleaned.replace(/,\s*}/g, "}").replace(/,\s*]/g, "]");
+      setLoading(true);
+
+      const topicsString = selectedTopic.join(", ");
+      const PROMPT = topicsString + "\n\n" + Prompt.COURSE;
+
+      const aiResp = await GenerateCourseAIModel.sendMessage(PROMPT);
+      let raw = aiResp.response.text().trim();
+
+      // Remove any accidental markdown wrappers
+      let cleaned = raw.replace(/```json/g, "").replace(/```/g, "").trim();
+
+      if (!cleaned || cleaned.length < 10) {
+        throw new Error("AI returned empty or incomplete JSON.");
+      }
+
+      let courseData;
       try {
         courseData = JSON.parse(cleaned);
-      } catch {
-        console.log("AI JSON parse error:", parseErr.message);
-        alert("AI returned invalid JSON. Try again.");
-        return;
+      } catch (parseErr) {
+        // Attempt minor fixes
+        cleaned = cleaned.replace(/,\s*}/g, "}").replace(/,\s*]/g, "]");
+        try {
+          courseData = JSON.parse(cleaned);
+        } catch {
+          console.log("AI JSON parse error:", parseErr.message);
+          alert("AI returned invalid JSON. Try again.");
+          return;
+        }
       }
+
+      // 🌟 FIX IMPLEMENTATION 🌟
+      // 1. Generate the custom ID (timestamp string)
+      const customDocId = Date.now().toString();
+
+      // 2. Use setDoc(docRef, data) to create the document with the custom ID
+      await setDoc(doc(db, "courses", customDocId), {
+        ...courseData,
+        topics: selectedTopic,
+        createdBy: userDetail.email,
+        createdAt: new Date(),
+        // 3. Ensure the custom ID is also stored as a field for easy reference later
+        docId: customDocId,
+      });
+      // 🌟 END FIX 🌟
+
+      alert("Course saved successfully!");
+      router.back();
+
+    } catch (err) {
+      console.log("COURSE GENERATION ERROR:", err.message);
+      alert("Unable to generate course. Check AI response.");
+    } finally {
+      setLoading(false);
     }
-
-    // Save to Firestore
-    await addDoc(collection(db, "courses"), {
-      ...courseData,
-      topics: selectedTopic,
-      createdBy: userDetail.email,
-      createdAt: new Date(),
-      docId: Date.now().toString(),
-    });
-
-    alert("Course saved successfully!");
-    router.back();
-
-  } catch (err) {
-    console.log("COURSE GENERATION ERROR:", err.message);
-    alert("Unable to generate course. Check AI response.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
 
   return (
