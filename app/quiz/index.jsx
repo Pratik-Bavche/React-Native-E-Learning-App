@@ -72,10 +72,9 @@ export default function Quiz() {
       }, { merge: true });
 
       setQuizCompleted(true);
-      // Show completion modal briefly, then go back automatically
       setTimeout(() => {
         try {
-          router.back();
+          // router.back();
         } catch (e) {
           console.log('Navigation back failed:', e);
         }
@@ -85,6 +84,12 @@ export default function Quiz() {
       alert("Failed to save quiz result. Try again.");
     } finally {
       setLoading(false);
+      router.replace({
+        pathname:'/quiz/summery',
+        params:{
+          quizResult:result
+        }
+      })
     }
   };
 
