@@ -87,7 +87,7 @@ export default function Quiz() {
       router.replace({
         pathname:'/quiz/summery',
         params:{
-          quizResult:result
+          quizResultParam:JSON.stringify(result)
         }
       })
     }
