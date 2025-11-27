@@ -1,132 +1,105 @@
 import { View, Text, Image, StyleSheet, FlatList } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import Colors from '../../constant/Colors';
 import Button from '../../components/Shared/Button';
 
 export default function QuizSummery() {
     const { quizResultParam } = useLocalSearchParams();
-    const quizResult = JSON.parse(quizResultParam)
-    const [correctAns, setCorrectAns] = useState(0);
-    const [totalQuestion, setTotalQuestion] = useState(0);
-    const router=useRouter();
+    const router = useRouter();
 
-    useEffect(() => {
-        CalculateResult();
-    }, [quizResult])
-
-    const CalculateResult = () => {
-        if (quizResult !== undefined) {
-            const correctAns = Object.entries(quizResult)?.filter(([key, value]) => value?.isCorrect == true)
-            const totalQ = Object.keys(quizResult).length;
-            setCorrectAns(correctAns.length);
-            setTotalQuestion(totalQ)
-        }
+    let parsedResult = {};
+    try {
+        parsedResult = quizResultParam ? JSON.parse(quizResultParam) : {};
+    } catch (e) {
+        console.log('Failed to parse quizResultParam', e);
+        parsedResult = {};
     }
+
+    const resultArray = useMemo(() => {
+        return Object.entries(parsedResult || {}).map(([key, value], idx) => ({
+            id: key,
+            index: idx + 1,
+            question: value?.question || `Question ${idx + 1}`,
+            userChoice: value?.userChoice ?? value?.userAns ?? value?.selectedAnswer ?? '',
+            correctAnswer: value?.answer ?? value?.correctAns ?? '',
+            isCorrect: !!value?.isCorrect
+        }));
+    }, [quizResultParam]);
+
+    const totalQuestion = resultArray.length;
+    const correctAns = resultArray.filter(r => r.isCorrect).length;
+    const wrongAns = totalQuestion - correctAns;
 
     const getPerc = () => {
         if (totalQuestion === 0) return 0;
-        return ((correctAns / totalQuestion) * 100).toFixed(0);
+        return Math.round((correctAns / totalQuestion) * 100);
+    }
+
+    const renderItem = ({ item }) => {
+        return (
+            <View style={[styles.itemCard, item.isCorrect ? styles.correctCard : styles.wrongCard]}>
+                <View style={styles.itemHeader}>
+                    <Text style={styles.itemIndex}>Q{item.index}</Text>
+                    <Text style={[styles.itemStatus, item.isCorrect ? styles.correctText : styles.wrongText]}>
+                        {item.isCorrect ? 'Correct' : 'Wrong'}
+                    </Text>
+                </View>
+                <Text style={styles.questionText}>{item.question}</Text>
+                <Text style={styles.answerLabel}>Your answer:</Text>
+                <Text style={styles.userAnswer}>{item.userChoice || '-'} </Text>
+                <Text style={styles.answerLabel}>Correct answer:</Text>
+                <Text style={styles.correctAnswer}>{item.correctAnswer || '-'} </Text>
+            </View>
+        )
     }
 
     return (
         <FlatList 
         data={[]}
         ListHeaderComponent={
-        <View>
-            <Image source={require('./../../assets/images/wave.png')} style={{
-                width: '100%',
-                height: 700
-            }} />
+        <View style={styles.container}>
+            <Image source={require('./../../assets/images/wave.png')} style={styles.headerImage} />
 
-            <View style={{
-                position: 'absolute',
-                width: '100%',
-                padding: 35
-            }}>
-                <Text style={{
-                    textAlign: 'center',
-                    fontFamily: 'outfit-bold',
-                    fontSize: 30,
-                    color: Colors.WHITE
-                }}>Quiz Summery</Text>
+            <View style={styles.headerOverlay}>
+                <Text style={styles.title}>Quiz Summary</Text>
 
-                <View style={{
-                    backgroundColor: Colors.WHITE,
-                    padding: 20,
-                    borderRadius: 20,
-                    marginTop: 55,
-                    display: 'flex',
-                    alignItems: 'center'
-                }}>
-                    <Image source={require('./../../assets/images/trophy.png')} style={{
-                        width: 100,
-                        height: 100,
-                        marginTop: -60
-                    }} />
-                    <Text style={{
-                        fontSize: 26,
-                        fontFamily: 'outfit-bold',
-                    }}>{getPerc() > 50 ? 'Congratulations!' : 'Try Again!'}</Text>
-                    <Text style={{
-                        fontFamily:'outfit',
-                        color:Colors.GRAY,
-                        fontSize:18
-                    }}>You gave {getPerc()}% Correct Ans</Text>
+                <View style={styles.summaryBox}>
+                    <Image source={require('./../../assets/images/trophy.png')} style={styles.trophy} />
+                    <Text style={styles.resultTitle}>{getPerc() > 50 ? 'Congratulations!' : 'Try Again!'}</Text>
+                    <Text style={styles.resultSubtitle}>You scored {getPerc()}%</Text>
 
-                    <View style={{display:'flex',flexDirection:'row',justifyContent:'space-between',marginTop:10,gap:30}}>
-                        <View style={styles.resultTextContainer}>
-                            <Text style={
-                                styles.resultText
-                            }>Q{totalQuestion}</Text>
+                    <View style={styles.statsRow}>
+                        <View style={styles.statItem}>
+                            <Text style={styles.statNumber}>{totalQuestion}</Text>
+                            <Text style={styles.statLabel}>Questions</Text>
                         </View>
-                         <View style={styles.resultTextContainer}>
-                            <Text style={
-                                styles.resultText
-                            }>✅{correctAns}</Text>
+                        <View style={styles.statItem}>
+                            <Text style={styles.statNumber}>✅ {correctAns}</Text>
+                            <Text style={styles.statLabel}>Correct</Text>
                         </View>
-                         <View style={styles.resultTextContainer}>
-                            <Text style={
-                                styles.resultText
-                            }>❌{totalQuestion-correctAns}</Text>
+                        <View style={styles.statItem}>
+                            <Text style={styles.statNumber}>❌ {wrongAns}</Text>
+                            <Text style={styles.statLabel}>Wrong</Text>
                         </View>
                     </View>
                 </View>
-                    <Button text={'Back To Home'} onPress={()=>router.replace('/(tabs)/home')}/>
-                    <View style={{
-                        marginTop:25,
-                        flex:1
-                    }}> 
-                    <Text style={{
-                        fontFamily:'outfit-bold',
-                        fontSize:25
-                    }}>Summery</Text>
-                        <FlatList>
-                        data={Object.entries(quizResult)}
-                        renderItem={({item,index})=>{
-                            const quizItem=item[1];
-                            return(
-                            <View style={{
-                                padding:15,
-                                borderWidth:1,
-                                marginTop:5,
-                                borderRadius:15,
-                                backgroundColor:quizItem?.isCorrect==true?'lighhtgreen':'lightred',
-                                borderColor:quizItem?.isCorrect==true?'green':'red',
-                            }}>
-                                <Text style={{
-                                    fontFamily:'outfit',
-                                    fontSize:20
-                                }}>{quizItem.question}</Text>
-                                <Text style={{
-                                    fontFamily:'outfit',
-                                    fontSize:15
-                                }}>Ans: {quizItem?.correctAns}</Text>
-                            </View>
-                            )
-                        }}
-                    </FlatList>
-                    </View>
+
+                <View style={{ marginTop: 12 }}>
+                    <Button text={'Back To Home'} onPress={() => router.replace('/(tabs)/home')} />
+                </View>
+
+                <View style={styles.resultsListContainer}>
+                    <Text style={styles.sectionTitle}>Summary</Text>
+                    <FlatList
+                        data={resultArray}
+                        keyExtractor={(item) => item.id?.toString() ?? item.index.toString()}
+                        renderItem={renderItem}
+                        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={{ paddingBottom: 120 }}
+                    />
+                </View>
             </View>
         </View>
         }/>
@@ -134,13 +107,33 @@ export default function QuizSummery() {
 }
 
 const styles = StyleSheet.create({
-    resultTextContainer:{
-        padding:15,
-        backgroundColor:Colors.WHITE,
-        elevation:1
-    },
-    resultText:{
-        fontFamily:'outfit',
-        fontSize:20
-    }
+    container: { flex: 1, backgroundColor: Colors.BG_GRAY },
+    headerImage: { width: '100%', height: 260, resizeMode: 'cover' },
+    headerOverlay: { position: 'absolute', top: 20, left: 0, right: 0, padding: 20 },
+    title: { textAlign: 'center', fontFamily: 'outfit-bold', fontSize: 28, color: Colors.WHITE },
+    summaryBox: { backgroundColor: Colors.WHITE, padding: 18, borderRadius: 14, marginTop: 24, alignItems: 'center', elevation: 3 },
+    trophy: { width: 80, height: 80, marginTop: -50 },
+    resultTitle: { fontSize: 22, fontFamily: 'outfit-bold', marginTop: 6 },
+    resultSubtitle: { fontFamily: 'outfit', color: Colors.GRAY, fontSize: 16, marginTop: 4 },
+    statsRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12, width: '100%' },
+    statItem: { flex: 1, alignItems: 'center' },
+    statNumber: { fontFamily: 'outfit-bold', fontSize: 18 },
+    statLabel: { fontFamily: 'outfit', color: Colors.GRAY, fontSize: 12 },
+
+    resultsListContainer: { marginTop: 18 },
+    sectionTitle: { fontFamily: 'outfit-bold', fontSize: 20, marginBottom: 8 },
+
+    itemCard: { padding: 14, borderRadius: 12, borderWidth: 1, borderColor: '#ddd' },
+    itemHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+    itemIndex: { fontFamily: 'outfit-bold' },
+    itemStatus: { fontFamily: 'outfit-bold' },
+    questionText: { fontFamily: 'outfit', fontSize: 16, marginBottom: 8 },
+    answerLabel: { fontFamily: 'outfit', color: Colors.GRAY, fontSize: 12 },
+    userAnswer: { fontFamily: 'outfit', fontSize: 15, marginBottom: 6 },
+    correctAnswer: { fontFamily: 'outfit-bold', fontSize: 15 },
+
+    correctCard: { backgroundColor: '#e6fbf0', borderColor: '#2ecc71' },
+    wrongCard: { backgroundColor: '#fff0f0', borderColor: '#e74c3c' },
+    correctText: { color: '#2ecc71' },
+    wrongText: { color: '#e74c3c' }
 })
