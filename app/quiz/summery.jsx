@@ -36,6 +36,7 @@ export default function QuizSummery() {
         return Math.round((correctAns / totalQuestion) * 100);
     }
 
+    // This renders the individual Question Card
     const renderItem = ({ item }) => {
         return (
             <View style={[styles.itemCard, item.isCorrect ? styles.correctCard : styles.wrongCard]}>
@@ -54,65 +55,72 @@ export default function QuizSummery() {
         )
     }
 
-    return (
-        <FlatList 
-        data={[]}
-        ListHeaderComponent={
-        <View style={styles.container}>
-            <Image source={require('./../../assets/images/wave.png')} style={styles.headerImage} />
+    // This renders everything at the top (Image, Stats, Button)
+    const renderHeader = () => {
+        return (
+            <View>
+                <Image source={require('./../../assets/images/wave.png')} style={styles.headerImage} />
 
-            <View style={styles.headerOverlay}>
-                <Text style={styles.title}>Quiz Summary</Text>
+                <View style={styles.headerOverlay}>
+                    <Text style={styles.title}>Quiz Summary</Text>
 
-                <View style={styles.summaryBox}>
-                    <Image source={require('./../../assets/images/trophy.png')} style={styles.trophy} />
-                    <Text style={styles.resultTitle}>{getPerc() > 50 ? 'Congratulations!' : 'Try Again!'}</Text>
-                    <Text style={styles.resultSubtitle}>You scored {getPerc()}%</Text>
+                    <View style={styles.summaryBox}>
+                        <Image source={require('./../../assets/images/trophy.png')} style={styles.trophy} />
+                        <Text style={styles.resultTitle}>{getPerc() > 50 ? 'Congratulations!' : 'Try Again!'}</Text>
+                        <Text style={styles.resultSubtitle}>You scored {getPerc()}%</Text>
 
-                    <View style={styles.statsRow}>
-                        <View style={styles.statItem}>
-                            <Text style={styles.statNumber}>{totalQuestion}</Text>
-                            <Text style={styles.statLabel}>Questions</Text>
-                        </View>
-                        <View style={styles.statItem}>
-                            <Text style={styles.statNumber}>✅ {correctAns}</Text>
-                            <Text style={styles.statLabel}>Correct</Text>
-                        </View>
-                        <View style={styles.statItem}>
-                            <Text style={styles.statNumber}>❌ {wrongAns}</Text>
-                            <Text style={styles.statLabel}>Wrong</Text>
+                        <View style={styles.statsRow}>
+                            <View style={styles.statItem}>
+                                <Text style={styles.statNumber}>{totalQuestion}</Text>
+                                <Text style={styles.statLabel}>Questions</Text>
+                            </View>
+                            <View style={styles.statItem}>
+                                <Text style={styles.statNumber}>✅ {correctAns}</Text>
+                                <Text style={styles.statLabel}>Correct</Text>
+                            </View>
+                            <View style={styles.statItem}>
+                                <Text style={styles.statNumber}>❌ {wrongAns}</Text>
+                                <Text style={styles.statLabel}>Wrong</Text>
+                            </View>
                         </View>
                     </View>
-                </View>
 
-                <View style={{ marginTop: 12 }}>
-                    <Button text={'Back To Home'} onPress={() => router.replace('/(tabs)/home')} />
-                </View>
+                    <View style={{ marginTop: 12 }}>
+                        <Button text={'Back To Home'} onPress={() => router.replace('/(tabs)/home')} />
+                    </View>
 
-                <View style={styles.resultsListContainer}>
-                    <Text style={styles.sectionTitle}>Summary</Text>
-                    <FlatList
-                        data={resultArray}
-                        keyExtractor={(item) => item.id?.toString() ?? item.index.toString()}
-                        renderItem={renderItem}
-                        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{ paddingBottom: 120 }}
-                    />
+                    <View style={styles.resultsListContainer}>
+                        <Text style={styles.sectionTitle}>Summary</Text>
+                    </View>
                 </View>
             </View>
+        )
+    }
+
+    return (
+        <View style={styles.container}>
+            <FlatList
+                data={resultArray}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id?.toString() ?? item.index.toString()}
+                ListHeaderComponent={renderHeader} // The top part goes here
+                contentContainerStyle={{ paddingBottom: 50 }}
+                showsVerticalScrollIndicator={false}
+                // Only add padding to the list items, not the header image area
+                style={{ flex: 1 }} 
+            />
         </View>
-        }/>
     )
 }
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: Colors.BG_GRAY },
     headerImage: { width: '100%', height: 260, resizeMode: 'cover' },
-    headerOverlay: { position: 'absolute', top: 20, left: 0, right: 0, padding: 20 },
+    // Removed 'position: absolute' to make flow standard, adjusted margin instead
+    headerOverlay: { width: '100%', padding: 20, marginTop: -240 }, 
     title: { textAlign: 'center', fontFamily: 'outfit-bold', fontSize: 28, color: Colors.WHITE },
     summaryBox: { backgroundColor: Colors.WHITE, padding: 18, borderRadius: 14, marginTop: 24, alignItems: 'center', elevation: 3 },
-    trophy: { width: 80, height: 80, marginTop: -50 },
+    trophy: { width: 80, height: 80, marginTop: -20 },
     resultTitle: { fontSize: 22, fontFamily: 'outfit-bold', marginTop: 6 },
     resultSubtitle: { fontFamily: 'outfit', color: Colors.GRAY, fontSize: 16, marginTop: 4 },
     statsRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12, width: '100%' },
@@ -123,7 +131,8 @@ const styles = StyleSheet.create({
     resultsListContainer: { marginTop: 18 },
     sectionTitle: { fontFamily: 'outfit-bold', fontSize: 20, marginBottom: 8 },
 
-    itemCard: { padding: 14, borderRadius: 12, borderWidth: 1, borderColor: '#ddd' },
+    // Added margin bottom to itemCard to replace ItemSeparatorComponent
+    itemCard: { padding: 14, borderRadius: 12, borderWidth: 1, borderColor: '#ddd', marginBottom: 12, marginHorizontal: 20 }, 
     itemHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
     itemIndex: { fontFamily: 'outfit-bold' },
     itemStatus: { fontFamily: 'outfit-bold' },
