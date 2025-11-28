@@ -1,39 +1,44 @@
 import { View, Text, Image, TouchableOpacity, FlatList, Dimensions, StyleSheet } from 'react-native'
 import React, { useState } from 'react'
-import { useLocalSearchParams } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import Colors from '../../constant/Colors';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import FlipCard from 'react-native-flip-card'
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+import * as Progress from 'react-native-progress';
 export default function FlashCards() {
   const {courseParams}=useLocalSearchParams();
   const course=JSON.parse(courseParams)
   const flashcard=course?.FlashCards
   const [currentPage,setCurrentPage]=useState(0)
+  const router = useRouter();
   const width=Dimensions.get('screen').width
 
+  const totalQuestions = flashcard?.length || 0;
   const progress = totalQuestions ? (currentPage + 1) / totalQuestions : 0;
-const onScroll=(e)=>{
-const i=Math.round(e?.nativeEvent?.contentOffset.x/width)
-console.log(index)
-setCurrentPage(index)
-}
+
+  const onMomentumScrollEnd = (e) => {
+    const i = Math.round(e?.nativeEvent?.contentOffset.x / width);
+    setCurrentPage(i);
+  };
+
+  function Card({ front, back }) {
+    const [flipped, setFlipped] = useState(false);
+    return (
+      <TouchableOpacity activeOpacity={0.95} onPress={() => setFlipped(v => !v)}>
+        <View style={[styles.FlipCard, flipped ? styles.backCard : styles.frontCard]}>
+          {flipped ? (
+            <Text style={styles.backText}>{back}</Text>
+          ) : (
+            <Text style={styles.frontText}>{front}</Text>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  }
 
   return (
-    <View>
-      <Image source={require('./../../assets/images/wave.png')} style={{ width: "100%", height: 500 }} />
-      <View
-        style={{
-          position: "absolute",
-          top: 40,
-          left: 0,
-          right: 0,
-          flexDirection: "row",
-          justifyContent: "center",
-          alignItems: "center",
-          paddingHorizontal: 20,
-        }}
-      >
+    <View style={styles.pageContainer}>
+      <Image source={require('./../../assets/images/wave.png')} style={styles.headerImage} />
+      <View style={styles.headerOverlay}>
         <TouchableOpacity
           style={{
             position: "absolute",
@@ -48,45 +53,34 @@ setCurrentPage(index)
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
 
-        <Text style={{ fontFamily: "outfit-bold", fontSize: 24, color: Colors.WHITE }}>
-          {currentPage + 1} of {flashcard?.length}
-        </Text>
-        <View style={{ marginTop: -400, alignItems: 'center' }}>
-                <Progress.Bar progress={progress} width={Dimensions.get('window').width * 0.85} color='white' height={10} borderRadius={5} />
-              </View>
-        <FlatList
-        data={flashcard}
-        horizontal={true}
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onScroll={onScroll}
-        renderItem={({item,index})=>(
-            <View style={{
-              height:500,
-              marginTop:60
-            }}>
-              <FlipCard style={styles.FlipCard}>
-              {/* Face Side */}
-              <View style={styles.frontCard}>
-                <Text style={{
-                  fontFamily:'outfit-bold',
-                  fontSize:28
-                }}>{item?.front}</Text>
-              </View>
-              {/* Back Side */}
-              <View style={styles.backCard}>
-                <Text style={{
-                  width:Dimensions.get('screen').width*0.78,
-                  padding:20,
-                  fontFamily:'outfit',
-                  fontSize:28,textAlign:'center',color:Colors.WHITE
-                }}>{item?.back}</Text>
-              </View>
-            </FlipCard>
-            </View>
-        )}
-      />
+        <Text style={styles.headerCounter}>{currentPage + 1} of {totalQuestions}</Text>
+
+        <View style={styles.progressWrapper}>
+          <Progress.Bar progress={progress} width={Dimensions.get('window').width * 0.85} color='white' height={8} borderRadius={5} />
+        </View>
       </View>
+
+      {totalQuestions === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>No flashcards available for this course.</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={flashcard}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={onMomentumScrollEnd}
+          keyExtractor={(item, idx) => (item.id ?? idx).toString()}
+          contentContainerStyle={{ paddingVertical: 30 }}
+          renderItem={({ item, index }) => (
+            <View style={styles.cardWrapper}>
+              <Card front={item?.front} back={item?.back} />
+            </View>
+          )}
+        />
+      )}
+
     </View>
   )
 }
@@ -116,4 +110,15 @@ const styles = StyleSheet.create({
     borderRadius:20,
     backgroundColor:Colors.PRIMARY
   }
+  ,
+  pageContainer: { flex: 1, backgroundColor: Colors.BG_GRAY },
+  headerImage: { width: '100%', height: 240, resizeMode: 'cover' },
+  headerOverlay: { position: 'absolute', top: 20, left: 0, right: 0, padding: 20, alignItems: 'center' },
+  headerCounter: { fontFamily: 'outfit-bold', fontSize: 20, color: Colors.WHITE },
+  progressWrapper: { marginTop: 8 },
+  emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  emptyText: { fontFamily: 'outfit', color: Colors.GRAY, fontSize: 16 },
+  cardWrapper: { width: Dimensions.get('screen').width, alignItems: 'center' },
+  frontText: { fontFamily: 'outfit-bold', fontSize: 24, paddingHorizontal: 18, textAlign: 'center' },
+  backText: { fontFamily: 'outfit', fontSize: 20, color: Colors.WHITE, paddingHorizontal: 18, textAlign: 'center' }
 })
