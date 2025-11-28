@@ -9,14 +9,12 @@ export default function CourseListGrid({ courseList, option }) {
   const router = useRouter();
 
   const onPress = (course) => {
-    if (option?.name === 'Quiz') {
       router.push({
-        pathname: '/quiz',
+        pathname: option.path,
         params: {
           courseParams: JSON.stringify(course)
         }
       });
-    }
   };
 
   return (
