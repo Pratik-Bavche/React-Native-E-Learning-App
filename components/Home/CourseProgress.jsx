@@ -1,65 +1,14 @@
-import { View, Text, FlatList, Image } from 'react-native'
+import { View } from 'react-native'
 import React from 'react'
-import { imageAssets } from '../../constant/Option'
-import * as Progress from 'react-native-progress';
+import CourseProgressCard from '../../components/Shared/CourseProgressCard.jsx' // Ensure this path points to your new shared file
+
 export default function CourseProgress({courseList}) {
-
-  const GetCompltedChapters=(course)=>{
-    const completedChapter=course?.completedChapter?.length;
-    const per=completedChapter/course?.chapters?.length;
-    return per;
-  }
-
-
-
-
   return (
-    <View style={{marginTop:10}}>
-      <Text style={{fontFamily:'outfit-bold',fontSize:25}}>Progress</Text>
-      <FlatList data={courseList}
-        horizontal={true}
-        renderItem={({item,index})=>(
-            <View style={{
-                padding:15,
-                margin:5,
-                backgroundColor:'white',
-                borderRadius:15,
-                width:250,
-                }}>
-                <View style={{display:'flex',flexDirection:'row',gap:10,alignItems:'center'
-                }}>
-                    <Image source={imageAssets[item?.banner_image]} style={{width:100,height:100,borderRadius:8}}/>
-                    <View style={{flexShrink:1}}>
-                            <Text numberOfLines={2}
-                             style={{
-                                fontFamily:'outfit-bold',
-                                fontSize:15,
-                                flexWrap:'wrap',
-                                width:120
-                            }}>{item?.courseTitle}</Text>
-                            <Text style={{
-                                fontFamily:'outfit',
-                                fontSize:14,
-                                marginTop:5,    
-                            }}>{item?.chapters?.length} Chapter</Text>
-                    </View>
-                </View>
-
-                            <View style={{marginTop:10,alignItems:'center'}}>
-                                <Progress.Bar progress={GetCompltedChapters(item)} width={230} />
-                                <Text style={{
-                                    fontFamily:'outfit',
-                                    fontSize:14,
-                                    marginTop:5,    
-                                }}>{item?.completedChapter?.length} out of {item.chapters?.length} chapters completed</Text>
-                            </View>
-
-            </View>
-        )}
-      />
+    <View>
+       <CourseProgressCard 
+          courseList={courseList} 
+          title="Progress" 
+       />
     </View>
-    
-
-    
   )
 }
