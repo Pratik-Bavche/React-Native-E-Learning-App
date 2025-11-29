@@ -2,7 +2,7 @@ import { View, Text, FlatList } from 'react-native'
 import React from 'react'
 import Colors from '../../constant/Colors'
 import { CourseCategory } from '../../constant/Option'
-import CourseListByCategory from '../../components/Explore/courseListByCategory'
+import CourseListByCategory from '../../components/Explore/CourseListByCategory.jsx'
 
 export default function Explore() {
 
