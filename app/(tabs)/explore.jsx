@@ -7,7 +7,7 @@ import CourseListByCategory from '../../components/Explore/courseListByCategory'
 export default function Explore() {
 
   return (
-    <FlatList
+    <FlatList style={{flex:1,backgroundColor:Colors.WHITE}}
     data={[]}
     ListHeaderComponent={
     <View style={{
