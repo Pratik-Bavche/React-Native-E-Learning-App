@@ -6,12 +6,12 @@ import { useRouter } from 'expo-router';
 import Colors from '../../constant/Colors.jsx';
 
 
-export default function CourseList({ courseList }) {
+export default function CourseList({ courseList ,heading='Courses'}) {
   const router = useRouter();
 
   return (
     <View style={{ marginTop: 15 }}>
-      <Text style={{ fontSize: 25, fontFamily: 'outfit-bold' }}>Courses</Text>
+      <Text style={{ fontSize: 25, fontFamily: 'outfit-bold' }}>{heading}</Text>
       <FlatList
         data={courseList}
         horizontal
