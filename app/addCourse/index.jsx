@@ -1,10 +1,10 @@
-import { View, Text, TextInput, Pressable, ScrollView } from "react-native";
-import React, { useState } from "react";
+import { View, Text, TextInput, Pressable, ScrollView, Alert } from "react-native";
+import React, { useState, useContext } from "react";
 import Colors from "../../constant/Colors";
 import Button from "../../components/Shared/Button";
 import { GenerateCourseAIModel, GenerateTopicsAIModel } from "../../config/AIModel";
 import Prompt from "../../constant/Prompt";
-import { doc, setDoc } from "firebase/firestore"; // <-- CHANGED: Import doc and setDoc
+import { doc, setDoc } from "firebase/firestore"; 
 import { db } from "../../config/firebase";
 import { UserDetailContext } from "../../context/UserDetailContext";
 import { useRouter } from "expo-router";
@@ -14,10 +14,11 @@ export default function AddCourse() {
   const [userInput, setUserInput] = useState("");
   const [topics, setTopics] = useState([]);
   const [selectedTopic, setSelectedTopic] = useState([]);
-  const { userDetail } = React.useContext(UserDetailContext);
+  const { userDetail } = useContext(UserDetailContext);
   const router = useRouter();
 
   const onGenerateTopic = async () => {
+    if (!userInput) return;
     try {
       setLoading(true);
 
@@ -25,22 +26,20 @@ export default function AddCourse() {
       const aiResp = await GenerateTopicsAIModel.sendMessage(PROMPT);
       const textResponse = aiResp.response.text().trim();
 
-      console.log("RAW AI:", textResponse);
-
+      // Clean Markdown
       const cleaned = textResponse
         .replace(/```json/g, "")
         .replace(/```/g, "")
         .trim();
 
-      console.log("CLEANED JSON RESPONSE:", cleaned);
-
       let parsed = JSON.parse(cleaned);
 
-      // SUPPORT ALL POSSIBLE AI FORMATS
+      // Handle different array structures
       if (parsed.courseTitles) setTopics(parsed.courseTitles);
       else if (parsed.topics) setTopics(parsed.topics);
       else if (Array.isArray(parsed)) setTopics(parsed);
       else {
+        // Fallback: look for the first array key
         const firstArray = Object.values(parsed).find(v => Array.isArray(v));
         if (firstArray) setTopics(firstArray);
         else throw new Error("JSON does not contain any list of topics");
@@ -48,7 +47,7 @@ export default function AddCourse() {
 
     } catch (err) {
       console.log("AI ERROR:", err.message);
-      alert("Unable to generate topics. Check AI response JSON.");
+      Alert.alert("Error", "Unable to generate topics. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -76,51 +75,41 @@ export default function AddCourse() {
       const PROMPT = topicsString + "\n\n" + Prompt.COURSE;
 
       const aiResp = await GenerateCourseAIModel.sendMessage(PROMPT);
-      let raw = aiResp.response.text().trim();
+      let raw = aiResp.response.text();
 
-      // Remove any accidental markdown wrappers
-      let cleaned = raw.replace(/```json/g, "").replace(/```/g, "").trim();
+      // --- ROBUST JSON CLEANING START ---
+      // 1. Remove Markdown code blocks
+      let cleaned = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
 
-      if (!cleaned || cleaned.length < 10) {
-        throw new Error("AI returned empty or incomplete JSON.");
+      // 2. Find specific start and end of JSON object to ignore intro/outro text
+      const jsonStartIndex = cleaned.indexOf('{');
+      const jsonEndIndex = cleaned.lastIndexOf('}');
+      
+      if (jsonStartIndex !== -1 && jsonEndIndex !== -1) {
+        cleaned = cleaned.substring(jsonStartIndex, jsonEndIndex + 1);
       }
+      // --- ROBUST JSON CLEANING END ---
 
-      let courseData;
-      try {
-        courseData = JSON.parse(cleaned);
-      } catch (parseErr) {
-        // Attempt minor fixes
-        cleaned = cleaned.replace(/,\s*}/g, "}").replace(/,\s*]/g, "]");
-        try {
-          courseData = JSON.parse(cleaned);
-        } catch {
-          console.log("AI JSON parse error:", parseErr.message);
-          alert("AI returned invalid JSON. Try again.");
-          return;
-        }
-      }
+      let courseData = JSON.parse(cleaned);
 
-      // 🌟 FIX IMPLEMENTATION 🌟
-      // 1. Generate the custom ID (timestamp string)
+      // Save to Firebase
       const customDocId = Date.now().toString();
 
-      // 2. Use setDoc(docRef, data) to create the document with the custom ID
       await setDoc(doc(db, "courses", customDocId), {
         ...courseData,
         topics: selectedTopic,
         createdBy: userDetail.email,
         createdAt: new Date(),
-        // 3. Ensure the custom ID is also stored as a field for easy reference later
         docId: customDocId,
       });
-      // 🌟 END FIX 🌟
 
-      alert("Course saved successfully!");
-      router.back();
+      Alert.alert("Success", "Course saved successfully!", [
+        { text: "OK", onPress: () => router.back() }
+      ]);
 
     } catch (err) {
       console.log("COURSE GENERATION ERROR:", err.message);
-      alert("Unable to generate course. Check AI response.");
+      Alert.alert("Error", "Unable to generate course. The AI response was incomplete. Please try again with fewer topics.");
     } finally {
       setLoading(false);
     }
@@ -148,6 +137,7 @@ export default function AddCourse() {
           marginTop: 20,
           padding: 25,
           fontSize: 18,
+          borderColor: Colors.PRIMARY, // Added color for visibility
         }}
         numberOfLines={3}
         multiline={true}
@@ -187,9 +177,10 @@ export default function AddCourse() {
                     backgroundColor: isSelected(item) ? Colors.PRIMARY : Colors.WHITE,
                     color: isSelected(item) ? Colors.WHITE : Colors.BLACK,
                     textAlign: "center",
+                    overflow: 'hidden' // Fix for borderRadius on text
                   }}
                 >
-                  • {item}
+                  {item}
                 </Text>
               </Pressable>
             ))}

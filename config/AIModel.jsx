@@ -13,26 +13,26 @@ const genAI = new GoogleGenerativeAI(apiKey);
 // Load the Gemini model
 let model;
 try {
- model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-//  model = genAI.getGenerativeModel({ model: "gemini-2.0-pro" });
+  // You can switch to "gemini-1.5-flash" if 2.0 gives errors
+  model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 } catch (e) {
   console.log("❌ Model load error:", e);
 }
 
-// Export chat session
+// Export chat session for Topics (smaller limit is fine)
 export const GenerateTopicsAIModel = model?.startChat({
   generationConfig: {
     temperature: 0.7,
-    maxOutputTokens: 2048,
+    maxOutputTokens: 4000, 
   },
   history: [],
 });
 
-
+// Export chat session for Courses (Increased to 8000 to prevent cutoff)
 export const GenerateCourseAIModel = model?.startChat({
   generationConfig: {
     temperature: 0.7,
-    maxOutputTokens: 2048,
+    maxOutputTokens: 8000, 
   },
   history: [],
 });
