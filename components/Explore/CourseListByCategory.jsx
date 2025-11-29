@@ -1,36 +1,58 @@
-import { View, Text, TouchableOpacity, Image, FlatList, StyleSheet } from 'react-native'
+import { View, Text } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { collection, doc, getDoc, getDocs, orderBy, query, where } from 'firebase/firestore'
+import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db } from '../../config/firebase'
-import { imageAssets } from '../../constant/Option'
-import Ionicons from '@expo/vector-icons/Ionicons'
 import CourseList from '../Home/CourseList'
+import Colors from '../../constant/Colors' // Make sure to import Colors
 
-export default function CourseListByCategory({category}) {
-    const [courseList,setCourseList]=useState([])
-    const [loading,setLoading]=useState(false)
-    useEffect(()=>{
+export default function CourseListByCategory({ category }) {
+    const [courseList, setCourseList] = useState([])
+    const [loading, setLoading] = useState(false)
+
+    useEffect(() => {
         GetCourseListByCategory()
-    },[category])
+    }, [category])
 
-    const GetCourseListByCategory=async()=>{
+    const GetCourseListByCategory = async () => {
         setCourseList([])
         setLoading(true)
-        const q=query(collection(db,'Courses'),where('category','==',category),orderBy('createdOn','desc'))
-        const querySnapshop=await getDocs(q)
-
-        querySnapshop?.forEach((doc)=>{
-            console.log(doc.data())
-            setCourseList(prev=>[...prev,doc.data()])
-        })
+        try {
+            const q = query(
+                collection(db, 'courses'), 
+                where('category', '==', category)
+            )
+            const querySnapshot = await getDocs(q)
+            const list = []
+            
+            querySnapshot.forEach((doc) => {
+                list.push({ ...doc.data(), id: doc.id })
+            })
+            
+            setCourseList(list)
+        } catch (e) {
+            console.log("Error fetching explore courses:", e)
+        }
         setLoading(false)
     }
-    
 
-  return (
-    <View>
-      {CourseList?.length>0 && <CourseList courseList={courseList} heading={category}/>}
-    </View>
-  )
+    // CONDITION: If no courses, return null (renders nothing)
+    if (courseList.length === 0) {
+        return null;
+    }
+
+    return (
+        <View style={{ marginTop: 15 }}>
+            {/* Title is now rendered HERE, only if courses exist */}
+            <Text style={{
+                fontFamily: 'outfit-bold',
+                fontSize: 20,
+                marginBottom: 5,
+                color: Colors.BLACK
+            }}>
+                {category}
+            </Text>
+            
+            <CourseList courseList={courseList} />
+        </View>
+    )
 }
-
