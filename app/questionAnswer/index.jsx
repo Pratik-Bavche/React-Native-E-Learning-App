@@ -23,7 +23,7 @@ export default function QuestionAnswer() {
     }
   return (
     <View>
-      <Image source={require('./../../assets/images/wave.png')} style={{ }} />
+      <Image source={require('./../../assets/images/wave.png')}/>
       <View style={{
         position:'absolute',
         width:'100%',
