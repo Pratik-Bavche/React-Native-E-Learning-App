@@ -23,12 +23,12 @@ export default function Index() {
         <View style={{ width: '100%', maxWidth: 600, alignSelf: 'center', flex: 1, justifyContent: 'space-between' }}>
 
           {/* Top Section: Image */}
-          <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 20 }}>
+          <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 20, marginTop: 10 }}>
             <Image
               source={require("./../assets/images/landing.png")}
               style={{
                 width: "100%",
-                height: 300,
+                height: 240,
                 resizeMode: "contain",
               }}
             />
@@ -41,7 +41,7 @@ export default function Index() {
               backgroundColor: Colors.PRIMARY,
               borderTopLeftRadius: 30,
               borderTopRightRadius: 30,
-              paddingBottom: 40, // Extra padding for bottom safe area
+              paddingBottom: 100, // Increased to ensure buttons act comfortably above bottom edge
             }}
           >
             <Text
