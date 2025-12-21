@@ -93,6 +93,8 @@ export default function AddCourse() {
 
       if (jsonStartIndex !== -1 && jsonEndIndex !== -1) {
         cleaned = cleaned.substring(jsonStartIndex, jsonEndIndex + 1);
+      } else {
+        throw new Error("AI response did not contain a valid JSON object");
       }
       // --- ROBUST JSON CLEANING END ---
 
@@ -109,15 +111,18 @@ export default function AddCourse() {
         docId: customDocId,
       });
 
-      Alert.alert("Success", "Course saved successfully!", [
-        { text: "OK", onPress: () => router.back() }
-      ]);
+      setLoading(false); // Stop spinner explicitly
+      router.replace('/(tabs)/home'); // Navigate immediately
+
+      // Show success message (it will appear over the home screen or during transition)
+      // Note: On some devices/web, navigating immediately might close the alert. 
+      // But clearing the spinner and moving is the priority.
+      // We can use a small timeout for the alert if needed, but let's try direct.
 
     } catch (err) {
-      console.log("COURSE GENERATION ERROR:", err.message);
-      Alert.alert("Error", "Unable to generate course. The AI response was incomplete. Please try again with fewer topics.");
-    } finally {
       setLoading(false);
+      console.log("COURSE GENERATION ERROR:", err.message);
+      Alert.alert("Error", "Unable to generate course. Please try again.");
     }
   };
 

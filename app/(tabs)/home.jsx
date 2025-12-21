@@ -1,24 +1,29 @@
-import { collection, getDocs, query, where } from "firebase/firestore"
-import React, { useEffect, useState } from 'react'
-import { FlatList, Image, Platform, View } from 'react-native'
-import CourseList from '../../components/Home/CourseList.jsx'
-import CourseProgress from '../../components/Home/CourseProgress.jsx'
-import Header from '../../components/Home/Header'
-import NoCourse from '../../components/Home/NoCourse.jsx'
-import PracticeSection from '../../components/Home/PracticeSection.jsx'
-import Loading from '../../components/Shared/Loading.jsx'
-import { db } from '../../config/firebase.jsx'
-import Colors from '../../constant/Colors.jsx'
-import { UserDetailContext } from '../../context/UserDetailContext.jsx'
+import { useFocusEffect } from '@react-navigation/native';
+import { collection, getDocs, query, where } from "firebase/firestore";
+import React, { useCallback, useState } from 'react';
+import { FlatList, Image, Platform, View } from 'react-native';
+import CourseList from '../../components/Home/CourseList.jsx';
+import CourseProgress from '../../components/Home/CourseProgress.jsx';
+import Header from '../../components/Home/Header';
+import NoCourse from '../../components/Home/NoCourse.jsx';
+import PracticeSection from '../../components/Home/PracticeSection.jsx';
+import Loading from '../../components/Shared/Loading.jsx';
+import { db } from '../../config/firebase.jsx';
+import Colors from '../../constant/Colors.jsx';
+import { UserDetailContext } from '../../context/UserDetailContext.jsx';
 
 export default function Home() {
 
   const [courseList, setCourseList] = React.useState([])
   const { userDetail } = React.useContext(UserDetailContext)
   const [loading, setLoading] = useState(false)
-  useEffect(() => {
-    if (userDetail) getCourseList()
-  }, [userDetail])
+
+
+  useFocusEffect(
+    useCallback(() => {
+      if (userDetail) getCourseList();
+    }, [userDetail])
+  );
 
   const getCourseList = async () => {
     setLoading(true)
