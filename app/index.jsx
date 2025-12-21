@@ -20,15 +20,15 @@ export default function Index() {
         contentContainerStyle={{ flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={{ width: '100%', maxWidth: 600, alignSelf: 'center', flex: 1, justifyContent: 'space-between' }}>
+        <View style={{ width: '100%', maxWidth: 600, alignSelf: 'center', flex: 1 }}>
 
           {/* Top Section: Image */}
-          <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 20, marginTop: 10 }}>
+          <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 20 }}>
             <Image
               source={require("./../assets/images/landing.png")}
               style={{
                 width: "100%",
-                height: 240,
+                height: 200, // Reduced height for better fit on small screens
                 resizeMode: "contain",
               }}
             />
@@ -41,7 +41,8 @@ export default function Index() {
               backgroundColor: Colors.PRIMARY,
               borderTopLeftRadius: 30,
               borderTopRightRadius: 30,
-              paddingBottom: 100, // Increased to ensure buttons act comfortably above bottom edge
+              paddingBottom: 50, // Adequate padding for bottom safe area
+              marginTop: 'auto' // Pushes this section to the bottom
             }}
           >
             <Text
