@@ -1,70 +1,80 @@
-import { View, Text, Platform, FlatList, Image } from 'react-native'
+import { collection, getDocs, query, where } from "firebase/firestore"
 import React, { useEffect, useState } from 'react'
-import Header from '../../components/Home/Header'
-import Colors from '../../constant/Colors.jsx'
-import NoCourse from '../../components/Home/NoCourse.jsx'
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from '../../config/firebase.jsx'
-import { UserDetailContext } from '../../context/UserDetailContext.jsx'
+import { FlatList, Image, Platform, View } from 'react-native'
 import CourseList from '../../components/Home/CourseList.jsx'
-import PracticeSection from '../../components/Home/PracticeSection.jsx' // <-- Correct
 import CourseProgress from '../../components/Home/CourseProgress.jsx'
+import Header from '../../components/Home/Header'
+import NoCourse from '../../components/Home/NoCourse.jsx'
+import PracticeSection from '../../components/Home/PracticeSection.jsx'; // <-- Correct
+import { db } from '../../config/firebase.jsx'
+import Colors from '../../constant/Colors.jsx'
+import { UserDetailContext } from '../../context/UserDetailContext.jsx'
 
 export default function Home() {
 
   const [courseList, setCourseList] = React.useState([])
   const { userDetail } = React.useContext(UserDetailContext)
-  const [loading,setLoading]=useState(false)
+  const [loading, setLoading] = useState(false)
   useEffect(() => {
     if (userDetail) getCourseList()
   }, [userDetail])
 
   const getCourseList = async () => {
     setLoading(true)
-    const q = query(
-      collection(db, "courses"),
-      where("createdBy", "==", userDetail?.email)
-    )
+    console.log("Fetching courses for user:", userDetail?.email);
 
-    const querySnapshot = await getDocs(q);
+    try {
+      const q = query(
+        collection(db, "courses"),
+        where("createdBy", "==", userDetail?.email)
+      )
 
-    let list = []
-    querySnapshot.forEach((doc) => {
-      list.push(doc.data())
-    })
+      const querySnapshot = await getDocs(q);
 
-    setCourseList(list)
+      let list = []
+      querySnapshot.forEach((doc) => {
+        console.log("Found course:", doc.data());
+        list.push(doc.data())
+      })
+
+      console.log("Total courses found:", list.length);
+      setCourseList(list)
+    } catch (e) {
+      console.log("Error fetching courses:", e);
+    }
     setLoading(false)
   }
 
   return (
-       <FlatList
-        data={[]}
-        onRefresh={()=>getCourseList()}
-        refreshing={loading}
-        ListHeaderComponent={
-          <View style={{ flex: 1,
-      backgroundColor: Colors.WHITE}}>
-            <Image source={require('./../../assets/images/wave.png')} style={{position:'absolute',height:500}}/>
-    <View style={{
-      padding: 25,
-      paddingTop: Platform.OS === 'ios' ? 45 : 25,
-      
-    }}>
-      <Header />
-      
-      {courseList.length === 0 ? (
-        <NoCourse />
-      ) : (
-        <View>
-        <CourseProgress courseList={courseList }/>
-        <PracticeSection />
-        <CourseList courseList={courseList} />
+    <FlatList
+      data={[]}
+      onRefresh={() => getCourseList()}
+      refreshing={loading}
+      ListHeaderComponent={
+        <View style={{
+          flex: 1,
+          backgroundColor: Colors.WHITE
+        }}>
+          <Image source={require('./../../assets/images/wave.png')} style={{ position: 'absolute', height: 500 }} />
+          <View style={{
+            padding: 25,
+            paddingTop: Platform.OS === 'ios' ? 45 : 25,
+
+          }}>
+            <Header />
+
+            {courseList.length === 0 ? (
+              <NoCourse />
+            ) : (
+              <View>
+                <CourseProgress courseList={courseList} />
+                <PracticeSection />
+                <CourseList courseList={courseList} />
+              </View>
+            )}
+          </View>
         </View>
-      )}
-    </View>
-    </View>
-    
-    }/>
+
+      } />
   )
 }

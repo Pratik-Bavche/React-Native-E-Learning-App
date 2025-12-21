@@ -1,8 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import Constants from "expo-constants";
 
 // Correct way to access env in Expo
-const apiKey = Constants.expoConfig.extra?.EXPO_PUBLIC_GEMINI_API_KEY;
+const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
 
 if (!apiKey) {
   console.log("❌ Gemini API Key missing in app.json");
@@ -14,7 +13,7 @@ const genAI = new GoogleGenerativeAI(apiKey);
 let model;
 try {
   // You can switch to "gemini-1.5-flash" if 2.0 gives errors
-  model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 } catch (e) {
   console.log("❌ Model load error:", e);
 }
@@ -23,7 +22,7 @@ try {
 export const GenerateTopicsAIModel = model?.startChat({
   generationConfig: {
     temperature: 0.7,
-    maxOutputTokens: 4000, 
+    maxOutputTokens: 4000,
   },
   history: [],
 });
@@ -32,7 +31,7 @@ export const GenerateTopicsAIModel = model?.startChat({
 export const GenerateCourseAIModel = model?.startChat({
   generationConfig: {
     temperature: 0.7,
-    maxOutputTokens: 8000, 
+    maxOutputTokens: 8000,
   },
   history: [],
 });

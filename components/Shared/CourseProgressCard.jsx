@@ -1,7 +1,6 @@
-import { View, Text, FlatList, Image, Dimensions } from 'react-native';
-import React from 'react';
-import { imageAssets } from '../../constant/Option';
+import { Dimensions, FlatList, Image, Text, View } from 'react-native';
 import * as Progress from 'react-native-progress';
+import { imageAssets } from '../../constant/Option';
 
 // Get screen width for calculation
 const screenWidth = Dimensions.get('window').width;
@@ -11,8 +10,8 @@ export default function CourseProgressCard({ courseList, title = "", width = 250
   // 1. Helper to normalize width (Handles '80%' string or 250 number)
   const getCardWidth = () => {
     if (typeof width === 'string' && width.includes('%')) {
-        const percentage = parseFloat(width) / 100;
-        return screenWidth * percentage;
+      const percentage = parseFloat(width) / 100;
+      return screenWidth * percentage;
     }
     return width;
   }
@@ -51,19 +50,19 @@ export default function CourseProgressCard({ courseList, title = "", width = 250
               borderRadius: 15,
               width: cardWidth, // Apply calculated pixel width
             }}>
-            
+
             {/* Top Section */}
-            <View style={{ 
-                flexDirection: 'row', 
-                gap: 10, 
-                alignItems: 'center' 
+            <View style={{
+              flexDirection: 'row',
+              gap: 10,
+              alignItems: 'center'
             }}>
               <Image
-                source={imageAssets[item?.banner_image]}
+                source={imageAssets[item?.banner_image] || imageAssets['/banner1.png']}
                 style={{ width: 100, height: 100, borderRadius: 8 }}
               />
-              
-              <View style={{ flex: 1 }}> 
+
+              <View style={{ flex: 1 }}>
                 <Text
                   numberOfLines={2}
                   style={{
@@ -87,9 +86,9 @@ export default function CourseProgressCard({ courseList, title = "", width = 250
             {/* Bottom Section */}
             <View style={{ marginTop: 10 }}>
               {/* 3. Apply exact calculated width so it never overflows */}
-              <Progress.Bar 
-                progress={GetCompletedChapters(item)} 
-                width={progressBarWidth} 
+              <Progress.Bar
+                progress={GetCompletedChapters(item)}
+                width={progressBarWidth}
                 height={7}
               />
               <Text

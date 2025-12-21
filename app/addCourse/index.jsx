@@ -1,13 +1,13 @@
-import { View, Text, TextInput, Pressable, ScrollView, Alert } from "react-native";
-import React, { useState, useContext } from "react";
-import Colors from "../../constant/Colors";
+import { useRouter } from "expo-router";
+import { doc, setDoc } from "firebase/firestore";
+import { useContext, useState } from "react";
+import { Alert, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import Button from "../../components/Shared/Button";
 import { GenerateCourseAIModel, GenerateTopicsAIModel } from "../../config/AIModel";
-import Prompt from "../../constant/Prompt";
-import { doc, setDoc } from "firebase/firestore"; 
 import { db } from "../../config/firebase";
+import Colors from "../../constant/Colors";
+import Prompt from "../../constant/Prompt";
 import { UserDetailContext } from "../../context/UserDetailContext";
-import { useRouter } from "expo-router";
 
 export default function AddCourse() {
   const [loading, setLoading] = useState(false);
@@ -71,6 +71,12 @@ export default function AddCourse() {
     try {
       setLoading(true);
 
+      if (!userDetail) {
+        Alert.alert("Error", "User not authenticated. Please log in again.");
+        setLoading(false);
+        return;
+      }
+
       const topicsString = selectedTopic.join(", ");
       const PROMPT = topicsString + "\n\n" + Prompt.COURSE;
 
@@ -84,7 +90,7 @@ export default function AddCourse() {
       // 2. Find specific start and end of JSON object to ignore intro/outro text
       const jsonStartIndex = cleaned.indexOf('{');
       const jsonEndIndex = cleaned.lastIndexOf('}');
-      
+
       if (jsonStartIndex !== -1 && jsonEndIndex !== -1) {
         cleaned = cleaned.substring(jsonStartIndex, jsonEndIndex + 1);
       }
