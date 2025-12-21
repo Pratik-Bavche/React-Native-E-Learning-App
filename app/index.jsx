@@ -14,7 +14,12 @@ export default function Index() {
     if (!navigationState?.key) return;
 
     // Check context directly (populated by _layout by now if auth'd)
-    if (userDetail) {
+    // ONLY redirect if we are strictly on the landing page ("/" or empty key)
+    // and NOT deep in a tab like /explore or /profile.
+    const segments = navigationState?.routes?.[navigationState.index]?.name;
+    const isRoot = !segments || segments === 'index';
+
+    if (userDetail && isRoot) {
       router.replace("/(tabs)/home");
     }
   }, [userDetail, navigationState?.key]);
