@@ -23,12 +23,12 @@ export default function Index() {
         <View style={{ width: '100%', maxWidth: 600, alignSelf: 'center', flex: 1 }}>
 
           {/* Top Section: Image */}
-          <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 20 }}>
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 20 }}>
             <Image
               source={require("./../assets/images/landing.png")}
               style={{
                 width: "100%",
-                height: 200, // Reduced height for better fit on small screens
+                height: 320, // Increased height for better visibility
                 resizeMode: "contain",
               }}
             />
