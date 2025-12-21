@@ -12,17 +12,7 @@ export default function Index() {
   useEffect(() => {
     // Wait for router to be ready
     if (!navigationState?.key) return;
-
-    // Check context directly (populated by _layout by now if auth'd)
-    // ONLY redirect if we are strictly on the landing page ("/" or empty key)
-    // and NOT deep in a tab like /explore or /profile.
-    const segments = navigationState?.routes?.[navigationState.index]?.name;
-    const isRoot = !segments || segments === 'index';
-
-    if (userDetail && isRoot) {
-      router.replace("/(tabs)/home");
-    }
-  }, [userDetail, navigationState?.key]);
+  }, [navigationState?.key]);
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.WHITE }}>

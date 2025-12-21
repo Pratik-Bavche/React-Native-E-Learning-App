@@ -44,6 +44,9 @@ export default function SignIn() {
         else if (error.code == 'auth/invalid-email') {
           msg = "Invalid email format."
         }
+        else if (error.code == 'auth/missing-password') {
+          msg = "Please enter your password."
+        }
         ToastAndroid.show(msg, ToastAndroid.LONG);
       });
   }
