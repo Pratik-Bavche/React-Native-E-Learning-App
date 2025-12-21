@@ -5,7 +5,8 @@ import CourseList from '../../components/Home/CourseList.jsx'
 import CourseProgress from '../../components/Home/CourseProgress.jsx'
 import Header from '../../components/Home/Header'
 import NoCourse from '../../components/Home/NoCourse.jsx'
-import PracticeSection from '../../components/Home/PracticeSection.jsx'; // <-- Correct
+import PracticeSection from '../../components/Home/PracticeSection.jsx'
+import Loading from '../../components/Shared/Loading.jsx'
 import { db } from '../../config/firebase.jsx'
 import Colors from '../../constant/Colors.jsx'
 import { UserDetailContext } from '../../context/UserDetailContext.jsx'
@@ -46,35 +47,42 @@ export default function Home() {
   }
 
   return (
-    <FlatList
-      data={[]}
-      onRefresh={() => getCourseList()}
-      refreshing={loading}
-      ListHeaderComponent={
-        <View style={{
-          flex: 1,
-          backgroundColor: Colors.WHITE
-        }}>
-          <Image source={require('./../../assets/images/wave.png')} style={{ position: 'absolute', height: 500 }} />
+    <View style={{ flex: 1, backgroundColor: Colors.WHITE }}>
+      {/* Show Full Screen Loader if course list is empty and we are loading */}
+      {/* Or we can use the Modal Loading component which overlays everything */}
+      <Loading loading={loading} />
+
+      <FlatList
+        containerStyle={{ flex: 1 }}
+        data={[]}
+        onRefresh={() => getCourseList()}
+        refreshing={loading}
+        ListHeaderComponent={
           <View style={{
-            padding: 25,
-            paddingTop: Platform.OS === 'ios' ? 45 : 25,
-
+            flex: 1,
+            backgroundColor: Colors.WHITE
           }}>
-            <Header />
+            <Image source={require('./../../assets/images/wave.png')} style={{ position: 'absolute', height: 500 }} />
+            <View style={{
+              padding: 25,
+              paddingTop: Platform.OS === 'ios' ? 45 : 25,
 
-            {courseList.length === 0 ? (
-              <NoCourse />
-            ) : (
-              <View>
-                <CourseProgress courseList={courseList} />
-                <PracticeSection />
-                <CourseList courseList={courseList} />
-              </View>
-            )}
+            }}>
+              <Header />
+
+              {courseList.length === 0 ? (
+                <NoCourse />
+              ) : (
+                <View>
+                  <CourseProgress courseList={courseList} />
+                  <PracticeSection />
+                  <CourseList courseList={courseList} />
+                </View>
+              )}
+            </View>
           </View>
-        </View>
 
-      } />
+        } />
+    </View>
   )
 }
