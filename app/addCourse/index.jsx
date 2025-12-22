@@ -67,6 +67,7 @@ export default function AddCourse() {
     return selectedTopic.find((t) => t === topic);
   };
 
+
   const onGenerateCourse = async () => {
     try {
       setLoading(true);
@@ -111,18 +112,14 @@ export default function AddCourse() {
         docId: customDocId,
       });
 
-      setLoading(false); // Stop spinner explicitly
-      router.replace('/(tabs)/home'); // Navigate immediately
-
-      // Show success message (it will appear over the home screen or during transition)
-      // Note: On some devices/web, navigating immediately might close the alert. 
-      // But clearing the spinner and moving is the priority.
-      // We can use a small timeout for the alert if needed, but let's try direct.
+      // Navigate immediately
+      router.push('/(tabs)/home'); 
 
     } catch (err) {
-      setLoading(false);
       console.log("COURSE GENERATION ERROR:", err.message);
       Alert.alert("Error", "Unable to generate course. Please try again.");
+    } finally {
+      setLoading(false); 
     }
   };
 

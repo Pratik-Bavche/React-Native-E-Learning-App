@@ -1,36 +1,42 @@
 {
-    "expo": {
-        "name": "E-Learning App",
-        "slug": "e-learning-app",
-        "version": "1.0.0",
-        "scheme": "elearningapp",
-        "orientation": "portrait",
-        "icon": "./assets/images/logo.png",
-        "userInterfaceStyle": "light",
-        "splash": {
-            "image": "./assets/images/landing.png",
-            "resizeMode": "contain",
-            "backgroundColor": "#ffffff"
-        },
-        "assetBundlePatterns": [
-            "**/*"
-        ],
-        "ios": {
-            "supportsTablet": true
-        },
-        "android": {
-            "adaptiveIcon": {
-                "foregroundImage": "./assets/images/logo.png",
-                "backgroundColor": "#ffffff"
-            },
-            "package": "com.anonymous.elearningapp"
-        },
-        "web": {
-            "favicon": "./assets/images/logo.png",
-            "bundler": "metro"
-        },
-        "plugins": [
-            "expo-router"
-        ]
+  "expo": {
+    "name": "E-Learning App",
+    "slug": "e-learning-app",
+    "version": "1.0.0",
+    "scheme": "elearningapp",
+    "orientation": "portrait",
+    "icon": "./assets/images/logo.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/images/landing.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/logo.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.anonymous.elearningapp"
+    },
+    "web": {
+      "favicon": "./assets/images/logo.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "599e605a-7220-4fb7-828d-6e64b5fe0eb1"
+      }
     }
+  }
 }
