@@ -14,6 +14,7 @@ export default function AddCourse() {
   const [userInput, setUserInput] = useState("");
   const [topics, setTopics] = useState([]);
   const [selectedTopic, setSelectedTopic] = useState([]);
+  const [isCourseCreated, setIsCourseCreated] = useState(false);
   const { userDetail } = useContext(UserDetailContext);
   const router = useRouter();
 
@@ -67,7 +68,6 @@ export default function AddCourse() {
     return selectedTopic.find((t) => t === topic);
   };
 
-
   const onGenerateCourse = async () => {
     try {
       setLoading(true);
@@ -112,14 +112,15 @@ export default function AddCourse() {
         docId: customDocId,
       });
 
-      // Navigate immediately
-      router.push('/(tabs)/home'); 
+      // Instead of navigating automatically, verify creation and let user navigate
+      setIsCourseCreated(true);
+      setLoading(false);
 
     } catch (err) {
       console.log("COURSE GENERATION ERROR:", err.message);
       Alert.alert("Error", "Unable to generate course. Please try again.");
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
@@ -139,13 +140,15 @@ export default function AddCourse() {
       </Text>
 
       <TextInput
+        editable={!isCourseCreated}
         style={{
           borderWidth: 2,
           borderRadius: 10,
           marginTop: 20,
           padding: 25,
           fontSize: 18,
-          borderColor: Colors.PRIMARY, // Added color for visibility
+          borderColor: isCourseCreated ? Colors.GRAY : Colors.PRIMARY, // Visual feedback
+          opacity: isCourseCreated ? 0.5 : 1 // Visual feedback
         }}
         numberOfLines={3}
         multiline={true}
@@ -156,8 +159,9 @@ export default function AddCourse() {
       <Button
         text={"Generate Topics for Course"}
         type="fill"
-        onPress={onGenerateTopic}
+        onPress={isCourseCreated ? null : onGenerateTopic}
         loading={loading}
+        disabled={isCourseCreated} // Assuming Button component handles style for disabled
       />
 
       <ScrollView
@@ -172,7 +176,11 @@ export default function AddCourse() {
             </Text>
 
             {topics.map((item) => (
-              <Pressable key={item} onPress={() => onTopicSelect(item)} style={{ marginBottom: 10 }}>
+              <Pressable
+                key={item}
+                onPress={() => !isCourseCreated && onTopicSelect(item)}
+                style={{ marginBottom: 10, opacity: isCourseCreated ? 0.5 : 1 }}
+              >
                 <Text
                   style={{
                     fontSize: 16,
@@ -211,8 +219,8 @@ export default function AddCourse() {
           }}
         >
           <Button
-            text={"Create Course with Selected Topics"}
-            onPress={onGenerateCourse}
+            text={isCourseCreated ? "Go to Home" : "Create Course with Selected Topics"}
+            onPress={isCourseCreated ? () => router.replace('/(tabs)/home') : onGenerateCourse}
             loading={loading}
           />
         </View>
