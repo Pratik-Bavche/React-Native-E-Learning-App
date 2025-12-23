@@ -35,8 +35,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "599e605a-7220-4fb7-828d-6e64b5fe0eb1"
+        "projectId": "cf33962e-19bc-4450-8852-a91d4751d831"
       }
-    }
+    },
+    "owner": "pratikbavche"
   }
 }

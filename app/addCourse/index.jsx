@@ -112,9 +112,7 @@ export default function AddCourse() {
         docId: customDocId,
       });
 
-      // Instead of navigating automatically, verify creation and let user navigate
-      setIsCourseCreated(true);
-      setLoading(false);
+      router.replace('/(tabs)/home');
 
     } catch (err) {
       console.log("COURSE GENERATION ERROR:", err.message);
