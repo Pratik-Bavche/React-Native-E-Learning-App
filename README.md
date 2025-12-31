@@ -49,7 +49,7 @@ Educators creating adaptive learning content
 
 AI-powered recommendations
 
-check live demo : https://xpeero.vercel.app/home](https://e-learning-application--9xht4bp79q.expo.app
+check live demo : https://e-learning-application--9xht4bp79q.expo.app
 
 Certification generation
 
