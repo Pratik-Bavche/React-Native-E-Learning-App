@@ -1,4 +1,4 @@
-# 📚 AI-Based E-Learning Application
+# 📚 AI Powered E-Learning Application
 
 An AI-powered e-learning platform that allows users to generate personalized learning paths using simple text prompts. The application creates structured courses, learning points, and interactive content, making education flexible, engaging, and learner-centered.
 
